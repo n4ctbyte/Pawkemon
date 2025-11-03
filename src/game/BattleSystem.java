@@ -50,8 +50,8 @@ public class BattleSystem {
         System.out.println(p.getName() + "'s team:");
         for (Hero h : p.getTeam()) {
             System.out.print("  " + h.getName() + 
-                    " HP: " + h.getCurrentHP() + "/" + h.maxHP +
-                    " | Energy: " + h.getCurrentEnergy() + "/" + h.maxEnergy +
+                    " HP: " + h.getCurrentHP() + "/" + h.getMaxHP() +
+                    " | Energy: " + h.getCurrentEnergy() + "/" + h.getMaxEnergy() +
                     " | Ultimate: " + h.getUltimateBar() + "%" +
                     " | Attack: " + h.getAttackPower() + 
                     " | Defense: " + h.getDefense());
@@ -73,10 +73,8 @@ public class BattleSystem {
         System.out.println("\n" + currentPlayer.getName() + "'s turn!");
 
         Hero activeHero = chooseHero();
-        if (activeHero == null || activeHero.isStunned()) {
-            if (activeHero != null && activeHero.isStunned()) {
-                System.out.println(activeHero.getName() + " is stunned and skips turn!");
-            }
+        if (activeHero == null) {
+            System.out.println("No valid hero selected. Turn skipped.");
             return;
         }
 
@@ -120,18 +118,32 @@ public class BattleSystem {
     }
 
     private Hero chooseHero() {
-        System.out.println("Choose your hero:");
-        int i = 0;
-        for (Hero h : currentPlayer.getAliveHeroes()) {
-            System.out.println((i + 1) + ". " + h.getName() + " (HP: " + h.getCurrentHP() + ")");
-            i++;
+        while (true) {
+            System.out.println("Choose your hero:");
+            int i = 0;
+            List<Hero> aliveHeroes = currentPlayer.getAliveHeroes();
+            for (Hero h : aliveHeroes) {
+                System.out.println((i + 1) + ". " + h.getName() + " (HP: " + h.getCurrentHP() + ")");
+                i++;
+            }
+
+            if (aliveHeroes.isEmpty()) {
+                System.out.println("No alive heroes!");
+                return null;
+            }
+
+            int choice = scanner.nextInt() - 1;
+            if (choice >= 0 && choice < aliveHeroes.size()) {
+                Hero selectedHero = aliveHeroes.get(choice);
+                if (selectedHero.isStunned()) {
+                    System.out.println(selectedHero.getName() + " is stunned! Please choose another hero.");
+                    continue; // Loop kembali ke pemilihan
+                }
+                return selectedHero;
+            } else {
+                System.out.println("Invalid choice! Try again.");
+            }
         }
-        int choice = scanner.nextInt() - 1;
-        if (choice >= 0 && choice < currentPlayer.getAliveHeroes().size()) {
-            return currentPlayer.getAliveHeroes().get(choice);
-        }
-        System.out.println("Invalid choice!");
-        return null;
     }
 
     private Skill chooseSkill(Hero hero) {
@@ -224,18 +236,11 @@ public class BattleSystem {
 
     private void invokeAOESkill(Hero user, Skill skill, List<Hero> targets) {
         try {
-            java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
-            method.invoke(skill, user, targets, currentPlayer); // Kirim currentPlayer
+            java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class);
+            method.invoke(skill, user, targets);
         } catch (Exception e) {
-            try {
-                // Jika tidak ada method dengan 3 parameter, coba 2 parameter
-                java.lang.reflect.Method method2 = skill.getClass().getMethod("useAOE", Hero.class, List.class);
-                method2.invoke(skill, user, targets);
-            } catch (Exception f) {
-                // Jika tidak ada method AOE, gunakan method biasa
-                for (Hero target : targets) {
-                    skill.use(user, target);
-                }
+            for (Hero target : targets) {
+                skill.use(user, target);
             }
         }
     }

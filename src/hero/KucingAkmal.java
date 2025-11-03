@@ -28,11 +28,11 @@ public class KucingAkmal extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            int baseAttack = user.getBaseAttack(); // Gunakan base attack
+            int baseAttack = user.getBaseAttack();
             int buffAmount = (int) (baseAttack * 0.10);
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, buffAmount, Attribute.ATTACK));
-            user.clearDebuffs();
             System.out.println(user.getName() + " uses Whisker Vortex! Attack increased by " + buffAmount + " and debuffs cleared.");
+            user.clearDebuffs();
         }
 
         @Override
@@ -56,7 +56,6 @@ public class KucingAkmal extends Hero {
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.DOT, 3, 10, null));
                 System.out.println(target.getName() + " is affected by damage over time from Rotail Strike!");
 
-                // Beri Stun
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, 2, 0, null));
                 System.out.println(target.getName() + " is stunned for 2 turns by Rotail Strike!");
             }

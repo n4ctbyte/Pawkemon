@@ -66,7 +66,7 @@ public class GregTheCrocodile extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            // Asumsikan semua musuh sebagai target
+
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
@@ -74,10 +74,10 @@ public class GregTheCrocodile extends Hero {
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.DEBUFF, 2, 15, Attribute.ATTACK));
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.DEBUFF, 2, 15, Attribute.DEFENSE));
             }
-            // Shield all allies
+
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (user.getMaxHP() * 0.10);
-                // Asumsikan ada mekanisme shield
+
                 System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
             }
             System.out.println(user.getName() + " uses Death Roll, debuffs enemies and shields allies!");

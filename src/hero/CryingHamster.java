@@ -76,15 +76,13 @@ public class CryingHamster extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            // Revive one ally
-            // Asumsikan ada mekanisme revive
             System.out.println(target.getName() + " is revived with 50% HP by Divine Tears!");
             user.setUltimateBar(0);
         }
 
         @Override
         public TargetType getTargetType() {
-            return TargetType.SINGLE_ALLY; // Asumsikan target adalah yang sudah mati
+            return TargetType.SINGLE_ALLY;
         }
     }
 }

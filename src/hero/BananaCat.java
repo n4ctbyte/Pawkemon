@@ -47,7 +47,6 @@ public class BananaCat extends Hero {
         @Override
         public void use(Hero user, Hero target) {
             int shield = (int) (user.getMaxHP() * 0.20);
-            // Asumsikan ada mekanisme shield
             ((BananaCat) user).hasShield = true;
             System.out.println(user.getName() + " gains shield for " + shield + " HP.");
         }
@@ -65,7 +64,7 @@ public class BananaCat extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            // Asumsikan semua musuh sebagai target
+            
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
@@ -73,10 +72,9 @@ public class BananaCat extends Hero {
             for (Hero enemy : targets) {
                 enemy.addStatusEffect(new StatusEffect(StatusEffect.Type.TAUNT, 1, 0, null));
             }
-            // Shield all allies
+            
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (ally.getMaxHP() * 0.10);
-                // Asumsikan ada mekanisme shield
                 System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
             }
             System.out.println(user.getName() + " forces enemies to attack him and shields allies!");
