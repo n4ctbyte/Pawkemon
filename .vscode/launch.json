@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Game",
+            "request": "launch",
+            "mainClass": "game.Game",
+            "projectName": "Pawkemon_52dd4d75"
+        },
+        {
+            "type": "java",
+            "name": "Launch UI",
+            "request": "launch",
+            "mainClass": "ui.Main",
+            "projectName": "Pawkemon",
+            "vmArgs": "--module-path \"D:\\Downloads\\openjfx-25.0.1_windows-x64_bin-sdk\\javafx-sdk-25.0.1\\lib\" --add-modules javafx.controls,javafx.fxml"
+        }
+    ]
+}

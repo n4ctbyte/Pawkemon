@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile with JavaFX",
+            "type": "shell",
+            "command": "javac",
+            "args": [
+                "--module-path",
+                "D:\\Downloads\\openjfx-25.0.1_windows-x64_bin-sdk\\javafx-sdk-25.0.1\\lib",
+                "--add-modules",
+                "javafx.controls,javafx.fxml",
+                "-d",
+                "bin",
+                "src/ui/*.java",
+                "src/game/*.java",
+                "src/skill/*.java",
+                "src/hero/*.java"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$javac"]
+        }
+    ]
+}

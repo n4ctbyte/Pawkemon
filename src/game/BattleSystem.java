@@ -1,4 +1,5 @@
 package game;
+
 import game.Player;
 import game.Hero;
 import skill.Skill;
@@ -23,7 +24,6 @@ public class BattleSystem {
         while (player1.isTeamAlive() && player2.isTeamAlive()) {
             printStatus();
             handleTurn();
-            // Panggil update efek setelah turn selesai
             for (Hero h : player1.getTeam()) {
                 h.updateStatusEffects();
             }
@@ -49,9 +49,23 @@ public class BattleSystem {
     private void printTeamStatus(Player p) {
         System.out.println(p.getName() + "'s team:");
         for (Hero h : p.getTeam()) {
-            System.out.println("  " + h.getName() + " HP: " + h.getCurrentHP() + "/" + h.maxHP +
+            System.out.print("  " + h.getName() + 
+                    " HP: " + h.getCurrentHP() + "/" + h.maxHP +
                     " | Energy: " + h.getCurrentEnergy() + "/" + h.maxEnergy +
-                    " | Ultimate: " + h.getUltimateBar() + "%");
+                    " | Ultimate: " + h.getUltimateBar() + "%" +
+                    " | Attack: " + h.getAttackPower() + 
+                    " | Defense: " + h.getDefense());
+
+            List<StatusEffect> effects = h.getActiveEffects();
+            if (!effects.isEmpty()) {
+                System.out.print(" | Effects: ");
+                for (int i = 0; i < effects.size(); i++) {
+                    StatusEffect effect = effects.get(i);
+                    System.out.print(effect.getType() + "(" + effect.getDuration() + ")");
+                    if (i < effects.size() - 1) System.out.print(", ");
+                }
+            }
+            System.out.println();
         }
     }
 
@@ -69,35 +83,29 @@ public class BattleSystem {
         Skill skill = chooseSkill(activeHero);
         if (skill == null) return;
 
-        // --- Bagian penting: Pilih target berdasarkan skill ---
         List<Hero> targets = chooseTargetsForSkill(activeHero, skill);
         if (targets.isEmpty()) {
             System.out.println("No valid targets for this skill.");
             return;
         }
 
-        // --- Gunakan skill berdasarkan apakah AOE atau single ---
         if (skill instanceof SkillWithTargetType) {
             SkillWithTargetType typedSkill = (SkillWithTargetType) skill;
             TargetType targetType = typedSkill.getTargetType();
 
             if (isAOE(targetType)) {
-                // Jika AOE, coba panggil method useAOE jika ada
-                invokeAOESkill(activeHero, skill, targets); // <-- Casting ke Skill untuk invokeAOESkill
+                invokeAOESkill(activeHero, skill, targets);
             } else {
-                // Jika single target, gunakan seperti biasa
                 for (Hero target : targets) {
-                    skill.use(activeHero, target); // <-- SkillWithTargetType extends Skill, jadi ini aman
+                    skill.use(activeHero, target);
                 }
             }
         } else {
-            // Jika skill tidak mengimplementasi SkillWithTargetType, gunakan single target
             if (!targets.isEmpty()) {
                 skill.use(activeHero, targets.get(0));
             }
         }
 
-        // Ultimate bar naik jika bukan basic attack
         if (!(skill instanceof skill.BasicAttack)) {
             activeHero.gainUltimateBar(20);
         }
@@ -111,7 +119,6 @@ public class BattleSystem {
         }
     }
 
-    // Method untuk memilih hero
     private Hero chooseHero() {
         System.out.println("Choose your hero:");
         int i = 0;
@@ -127,7 +134,6 @@ public class BattleSystem {
         return null;
     }
 
-    // Method untuk memilih skill
     private Skill chooseSkill(Hero hero) {
         System.out.println("Choose a skill for " + hero.getName() + ":");
         int i = 0;
@@ -152,7 +158,6 @@ public class BattleSystem {
         return null;
     }
 
-    // Method untuk memilih target berdasarkan skill
     private List<Hero> chooseTargetsForSkill(Hero user, Skill skill) {
         if (skill instanceof SkillWithTargetType) {
             SkillWithTargetType typedSkill = (SkillWithTargetType) skill;
@@ -177,13 +182,11 @@ public class BattleSystem {
                     return new ArrayList<>();
             }
         } else {
-            // Jika skill tidak mengimplementasi targetType, gunakan single target
             Hero singleTarget = chooseEnemy();
             return singleTarget != null ? Arrays.asList(singleTarget) : new ArrayList<>();
         }
     }
 
-    // Method untuk memilih hero dari tim sendiri
     private Hero chooseAlly() {
         System.out.println("Choose an ally:");
         int i = 0;
@@ -199,7 +202,6 @@ public class BattleSystem {
         return null;
     }
 
-    // Method untuk memilih musuh (digunakan untuk single target)
     private Hero chooseEnemy() {
         Player targetTeam = (currentPlayer == player1) ? player2 : player1;
         System.out.println("Choose target:");
@@ -216,22 +218,24 @@ public class BattleSystem {
         return null;
     }
 
-    // Method untuk mengecek apakah skill adalah AOE
     private boolean isAOE(TargetType targetType) {
         return targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES;
     }
 
-    // Method untuk memanggil skill AOE
     private void invokeAOESkill(Hero user, Skill skill, List<Hero> targets) {
-        // Kita cek apakah skill memiliki method useAOE
-        // Kita gunakan reflection untuk memanggil method useAOE jika ada
         try {
-            java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class);
-            method.invoke(skill, user, targets);
+            java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
+            method.invoke(skill, user, targets, currentPlayer); // Kirim currentPlayer
         } catch (Exception e) {
-            // Jika method useAOE tidak ditemukan, gunakan method biasa ke semua target
-            for (Hero target : targets) {
-                skill.use(user, target);
+            try {
+                // Jika tidak ada method dengan 3 parameter, coba 2 parameter
+                java.lang.reflect.Method method2 = skill.getClass().getMethod("useAOE", Hero.class, List.class);
+                method2.invoke(skill, user, targets);
+            } catch (Exception f) {
+                // Jika tidak ada method AOE, gunakan method biasa
+                for (Hero target : targets) {
+                    skill.use(user, target);
+                }
             }
         }
     }
