@@ -2,6 +2,7 @@ package game;
 
 import game.Player;
 import game.Hero;
+import skill.AoeSkill;
 import skill.Skill;
 import skill.SkillWithTargetType;
 import java.util.*;
@@ -31,6 +32,7 @@ public class BattleSystem {
                 h.updateStatusEffects();
             }
             switchTurn();
+            reduceAllStatusEffectDurations();
         }
 
         if (player1.isTeamAlive()) {
@@ -61,7 +63,13 @@ public class BattleSystem {
                 System.out.print(" | Effects: ");
                 for (int i = 0; i < effects.size(); i++) {
                     StatusEffect effect = effects.get(i);
-                    System.out.print(effect.getType() + "(" + effect.getDuration() + ")");
+                    if (effect.getType() == StatusEffect.Type.BUFF || effect.getType() == StatusEffect.Type.DEBUFF) {
+                        System.out.print(effect.getAttribute() + "_" + effect.getType() + "(" + effect.getValue() + ")(" + effect.getDuration() + ")");
+                    } else if (effect.getType() == StatusEffect.Type.SHIELD) {
+                        System.out.print("SHIELD(" + effect.getValue() + ")(" + effect.getDuration() + ")");
+                    } else {
+                        System.out.print(effect.getType() + "(" + effect.getDuration() + ")");
+                    }
                     if (i < effects.size() - 1) System.out.print(", ");
                 }
             }
@@ -137,7 +145,7 @@ public class BattleSystem {
                 Hero selectedHero = aliveHeroes.get(choice);
                 if (selectedHero.isStunned()) {
                     System.out.println(selectedHero.getName() + " is stunned! Please choose another hero.");
-                    continue; // Loop kembali ke pemilihan
+                    continue;
                 }
                 return selectedHero;
             } else {
@@ -159,7 +167,9 @@ public class BattleSystem {
             Skill selected = hero.getSkills().get(choice);
             if (selected.isReady() && hero.getCurrentEnergy() >= selected.getEnergyCost()) {
                 hero.currentEnergy -= selected.getEnergyCost();
-                selected.startCooldown();
+                if (selected.getCooldown() > 0) {
+                    selected.startCooldown();
+                }
                 return selected;
             } else {
                 System.out.println("Not enough energy or skill on cooldown!");
@@ -168,6 +178,15 @@ public class BattleSystem {
         }
         System.out.println("Invalid choice!");
         return null;
+    }
+
+    private void reduceAllStatusEffectDurations() {
+        for (Hero h : player1.getTeam()) {
+            h.reduceStatusEffectDurations();
+        }
+        for (Hero h : player2.getTeam()) {
+            h.reduceStatusEffectDurations();
+        }
     }
 
     private List<Hero> chooseTargetsForSkill(Hero user, Skill skill) {
@@ -236,9 +255,21 @@ public class BattleSystem {
 
     private void invokeAOESkill(Hero user, Skill skill, List<Hero> targets) {
         try {
-            java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class);
-            method.invoke(skill, user, targets);
+            java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
+            Player player = (currentPlayer == player1) ? player1 : player2;
+            method.invoke(skill, user, targets, player);
+        } catch (NoSuchMethodException e) {
+            try {
+                java.lang.reflect.Method method = skill.getClass().getMethod("useAOE", Hero.class, List.class);
+                method.invoke(skill, user, targets);
+            } catch (Exception ex) {
+                System.out.println("Could not invoke aoe skil " + ex.getMessage());
+                for (Hero target : targets) {
+                    skill.use(user, target);
+                }
+            }
         } catch (Exception e) {
+            System.out.println("Could not invoke aoe skil " + e.getMessage());
             for (Hero target : targets) {
                 skill.use(user, target);
             }

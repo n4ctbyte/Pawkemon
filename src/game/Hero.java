@@ -1,5 +1,6 @@
 package game;
 
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import skill.Skill;
@@ -20,6 +21,9 @@ public class Hero {
     private int critChance = 0;
     private int critDamage = 0;
     private int dodgeChance = 0;
+    public boolean hasShield = false;
+    public int shieldAmount = 0;
+    private static final Random random = new Random();
 
     public Hero(String name, int maxHP, int attackPower, int defense, int maxEnergy) {
         this.name = name;
@@ -48,9 +52,7 @@ public class Hero {
     public int getDodgeChance() { return dodgeChance; }
 
     public void setCritChance(int value) { this.critChance = value; }
-
     public void setCritDamage(int value) { this.critDamage = value; }
-
     public void setDodgeChance(int value) { this.dodgeChance = value; }
 
     public void setUltimateBar(int value) {
@@ -60,22 +62,37 @@ public class Hero {
     public void clearDebuffs() {
         for (int i = activeEffects.size() - 1; i >= 0; i--) {
             StatusEffect effect = activeEffects.get(i);
-            if (effect.getType() == StatusEffect.Type.DEBUFF) {
-                if (effect.getAttribute() == Attribute.ATTACK) {
-                    attackBuff -= effect.getValue();
-                } else if (effect.getAttribute() == Attribute.DEFENSE) {
-                    defenseBuff -= effect.getValue();
-                } else if (effect.getAttribute() == Attribute.CRIT_CHANCE) {
-                    critChance -= effect.getValue();
-                } else if (effect.getAttribute() == Attribute.CRIT_DAMAGE) {
-                    critDamage -= effect.getValue();
-                } else if (effect.getAttribute() == Attribute.DODGE_CHANCE) {
-                    dodgeChance -= effect.getValue();
+            if (isNegativeEffect(effect)) {
+                if (effect.getAttribute() != null) {
+                    switch (effect.getAttribute()) {
+                        case ATTACK:
+                            attackBuff -= effect.getValue();
+                            break;
+                        case DEFENSE:
+                            defenseBuff -= effect.getValue();
+                            break;
+                        case CRIT_CHANCE:
+                            critChance -= effect.getValue();
+                            break;
+                        case CRIT_DAMAGE:
+                            critDamage -= effect.getValue();
+                            break;
+                        case DODGE_CHANCE:
+                            dodgeChance -= effect.getValue();
+                            break;
+                    }
                 }
                 activeEffects.remove(i);
             }
         }
         System.out.println(name + "'s debuffs have been cleared.");
+    }
+
+    private boolean isNegativeEffect(StatusEffect effect) {
+        return effect.getType() == StatusEffect.Type.DOT ||
+            effect.getType() == StatusEffect.Type.POISON ||
+            effect.getType() == StatusEffect.Type.STUN ||
+            effect.getType() == StatusEffect.Type.DEBUFF;
     }
 
     public void setCurrentEnergy(int value) {
@@ -106,10 +123,44 @@ public class Hero {
         skills.add(skill);
     }
 
+    public boolean tryDodge() {
+        int chance = this.dodgeChance;
+        return random.nextInt(100) < chance;
+    }
+
     public void applyDamage(int damage) {
         if (currentHP > 0) {
-            int actualDamage = Math.max(1, damage - defense);
-            currentHP = Math.max(0, currentHP - actualDamage);
+            if (tryDodge()) {
+                System.out.println(name + " dodged the attack!");
+                return;
+            }
+
+            for (int i = activeEffects.size() - 1; i >= 0; i--) {
+                StatusEffect effect = activeEffects.get(i);
+                if (effect.getType() == StatusEffect.Type.SHIELD) {
+                    int shieldValue = effect.getValue();
+                    if (shieldValue > 0) {
+                        if (damage <= shieldValue) {
+                            int absorbed = damage;
+                            effect.setValue(shieldValue - damage);
+                            damage = 0;
+                            System.out.println(name + "'s shield absorbed " + absorbed + " damage. Remaining shield: " + effect.getValue());
+                        } else {
+                            int absorbed = shieldValue;
+                            damage -= shieldValue;
+                            effect.setValue(0);
+                            activeEffects.remove(i);
+                            System.out.println(name + "'s shield absorbed " + absorbed + " damage and broke!");
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (damage > 0) {
+                int actualDamage = Math.max(1, damage - defense);
+                currentHP = Math.max(0, currentHP - actualDamage);
+            }
         }
     }
 
@@ -121,11 +172,23 @@ public class Hero {
         for (Skill skill : this.skills) {
             clone.addSkill(skill);
         }
+        for (StatusEffect effect : this.activeEffects) {
+            clone.addStatusEffect(effect.clone());
+        }
         return clone;
     }
 
     public void heal(int amount) {
         currentHP = Math.min(maxHP, currentHP + amount);
+    }
+
+    public int calculateDamage(int baseAttack) {
+        int damage = baseAttack;
+        if (random.nextInt(100) < critChance) {
+            damage = (int) (baseAttack * ((critDamage + 100) / 100.0));
+            System.out.println(name + " landed a critical hit for " + damage + " damage!");
+        }
+        return damage;
     }
 
     public void gainEnergy(int amount) {
@@ -147,10 +210,23 @@ public class Hero {
         activeEffects.add(effect);
     }
 
-    public void updateStatusEffects() {
+    public void reduceStatusEffectDurations() {
         for (int i = activeEffects.size() - 1; i >= 0; i--) {
             StatusEffect effect = activeEffects.get(i);
             effect.reduceDuration();
+
+            if (!effect.isActive()) {
+                if (effect.getType() == StatusEffect.Type.BUFF || effect.getType() == StatusEffect.Type.DEBUFF) {
+                    updateAttributeBuffs(effect.getAttribute(), -effect.getValue());
+                }
+                activeEffects.remove(i);
+            }
+        }
+    }
+
+    public void updateStatusEffects() {
+        for (int i = activeEffects.size() - 1; i >= 0; i--) {
+            StatusEffect effect = activeEffects.get(i);
 
             switch (effect.getType()) {
                 case STUN:
@@ -165,20 +241,21 @@ public class Hero {
                     System.out.println(name + " heals " + effect.getValue() + " HP from Healing Overtime!");
                     break;
                 case BUFF:
-                    updateAttributeBuffs(effect.getAttribute(), effect.getValue());
+                    if (!effect.isApplied()) {
+                        updateAttributeBuffs(effect.getAttribute(), effect.getValue());
+                        effect.setApplied(true);
+                    }
                     System.out.println(name + "'s " + effect.getAttribute() + " is buffed by " + effect.getValue() + " for " + effect.getDuration() + " turn(s)!");
                     break;
                 case DEBUFF:
-                    updateAttributeBuffs(effect.getAttribute(), -effect.getValue());
+                    if (!effect.isApplied()) {
+                        updateAttributeBuffs(effect.getAttribute(), -effect.getValue());
+                        effect.setApplied(true);
+                    }
                     System.out.println(name + "'s " + effect.getAttribute() + " is debuffed by " + effect.getValue() + " for " + effect.getDuration() + " turn(s)!");
                     break;
-            }
-
-            if (!effect.isActive()) {
-                if (effect.getType() == StatusEffect.Type.BUFF || effect.getType() == StatusEffect.Type.DEBUFF) {
-                    updateAttributeBuffs(effect.getAttribute(), -effect.getValue());
-                }
-                activeEffects.remove(i);
+                case SHIELD:
+                    break;
             }
         }
     }

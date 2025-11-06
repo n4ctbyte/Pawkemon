@@ -4,5 +4,6 @@ public enum Attribute {
     DEFENSE,
     CRIT_CHANCE,
     CRIT_DAMAGE,
-    DODGE_CHANCE
+    DODGE_CHANCE,
+    SHIELD_AMOUNT
 }

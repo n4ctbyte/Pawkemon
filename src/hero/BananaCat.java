@@ -11,10 +11,8 @@ import game.TargetType;
 import java.util.List;
 
 public class BananaCat extends Hero {
-    private boolean hasShield = false;
-
     public BananaCat() {
-        super("Banana Cat", 120, 15, 10, 100);
+        super("Banana Cat", 120, 10, 20, 100);
         addSkill(new BasicAttack());
         addSkill(new BananaBopSkill());
         addSkill(new BananaGuardSkill());
@@ -28,9 +26,17 @@ public class BananaCat extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            int stunTurns = ((BananaCat) user).hasShield ? 2 : 1;
+            boolean hasShield = false;
+            for (StatusEffect effect : user.getActiveEffects()) {
+                if (effect.getType() == StatusEffect.Type.SHIELD && effect.getValue() > 0) {
+                    hasShield = true;
+                    break;
+                }
+            }
+
+            int stunTurns = hasShield ? 3 : 2;
             target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, stunTurns, 0, null));
-            System.out.println(target.getName() + " is stunned for " + stunTurns + " turn(s) by Banana Bop!");
+            System.out.println(target.getName() + " is stunned for " + (stunTurns - 1) + " turn(s) by Banana Bop!");
         }
 
         @Override
@@ -47,7 +53,7 @@ public class BananaCat extends Hero {
         @Override
         public void use(Hero user, Hero target) {
             int shield = (int) (user.getMaxHP() * 0.20);
-            ((BananaCat) user).hasShield = true;
+            user.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 4, shield, Attribute.SHIELD_AMOUNT));
             System.out.println(user.getName() + " gains shield for " + shield + " HP.");
         }
 
@@ -68,7 +74,6 @@ public class BananaCat extends Hero {
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
-            // Taunt all enemies
             for (Hero enemy : targets) {
                 enemy.addStatusEffect(new StatusEffect(StatusEffect.Type.TAUNT, 1, 0, null));
             }

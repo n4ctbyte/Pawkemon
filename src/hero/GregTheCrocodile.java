@@ -14,7 +14,7 @@ public class GregTheCrocodile extends Hero {
     private int defenseBuff = 0;
 
     public GregTheCrocodile() {
-        super("Greg The Crocodile", 130, 20, 8, 100);
+        super("Greg The Crocodile", 130, 10, 20, 100);
         addSkill(new BasicAttack());
         addSkill(new ThickMudSkill());
         addSkill(new WarningBiteSkill());
@@ -49,7 +49,7 @@ public class GregTheCrocodile extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, 1, 0, null));
+            target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, 2, 0, null));
             System.out.println(target.getName() + " is stunned for 1 turn by Warning Bite!");
         }
 

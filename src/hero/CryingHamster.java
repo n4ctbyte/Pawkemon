@@ -2,6 +2,7 @@ package hero;
 
 import game.Hero;
 import game.Player;
+import skill.AoeSkill;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
@@ -13,7 +14,7 @@ import java.util.List;
 public class CryingHamster extends Hero {
 
     public CryingHamster() {
-        super("Crying Hamster", 70, 10, 6, 100);
+        super("Crying Hamster", 70, 10, 10, 200);
         addSkill(new BasicAttack());
         addSkill(new TearsOfCutenessSkill());
         addSkill(new CutenessOverflowSkill());
@@ -38,29 +39,32 @@ public class CryingHamster extends Hero {
         }
     }
 
-    private class CutenessOverflowSkill extends Skill implements SkillWithTargetType {
+    public class CutenessOverflowSkill extends Skill implements SkillWithTargetType, AoeSkill {
         public CutenessOverflowSkill() {
             super("Cuteness Overflow", 50, 4);
         }
 
         @Override
         public void use(Hero user, Hero target) {
-            // Asumsikan semua musuh sebagai target
         }
 
-        public void useAOE(Hero user, List<Hero> targets, Player player) {
+        public void useAOE(Hero user, List<Hero> targets) {
             for (Hero target : targets) {
                 int damage = (int) (user.getAttackPower() * 0.25);
                 target.applyDamage(damage);
                 System.out.println(target.getName() + " takes " + damage + " damage from Cuteness Overflow!");
             }
-            // Shield all allies
+            System.out.println(user.getName() + " attacks enemies!");
+        }
+
+        public void useAOE(Hero user, List<Hero> targets, Player player) {
+            useAOE(user, targets);
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (ally.getMaxHP() * 0.15);
-                // Asumsikan ada mekanisme shield
+                ally.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 2, shield, Attribute.SHIELD_AMOUNT));
                 System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
             }
-            System.out.println(user.getName() + " attacks enemies and shields allies!");
+            System.out.println(user.getName() + " shields allies!");
         }
 
         @Override

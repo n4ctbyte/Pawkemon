@@ -21,6 +21,8 @@ public abstract class Skill {
 
     public abstract void use(Hero user, Hero target);
 
+    public int getCooldown() { return cooldown; }
+
     public void startCooldown() {
         currentCooldown = cooldown;
         isAvailable = false;
