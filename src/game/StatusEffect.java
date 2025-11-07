@@ -10,6 +10,7 @@ public class StatusEffect {
     private int value;
     private Attribute attribute;
     private boolean applied = false;
+    private String source = "";
 
     public StatusEffect(Type type, int duration, int value, Attribute attribute) {
         this.type = type;
@@ -20,6 +21,14 @@ public class StatusEffect {
 
     public void reduceDuration() {
         duration--;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSource() {
+        return source;
     }
 
     public void setValue(int value) {

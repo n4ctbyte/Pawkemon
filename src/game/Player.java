@@ -23,6 +23,16 @@ public class Player {
         return alive;
     }
 
+    public List<Hero> getDeadHeros() {
+        List<Hero> dead = new ArrayList<>();
+        for (Hero h : team) {
+            if (h.isDead()) {
+                dead.add(h);
+            }
+        }
+        return dead;
+    }
+
     public boolean isTeamAlive() {
         return !getAliveHeroes().isEmpty();
     }

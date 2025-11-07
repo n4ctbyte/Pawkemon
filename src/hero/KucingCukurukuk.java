@@ -6,6 +6,7 @@ import skill.AoeSkill;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
@@ -27,9 +28,9 @@ public class KucingCukurukuk extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 100, Attribute.CRIT_CHANCE)); // Asumsikan ada attribut CRIT_CHANCE
-            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 100, Attribute.CRIT_DAMAGE)); // Asumsikan ada attribut CRIT_DAMAGE
-            System.out.println(user.getName() + " enters Stoic Stance! Crit chance +100%, Crit damage +100% for 2 turns.");
+            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 50, Attribute.CRIT_CHANCE));
+            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 50, Attribute.CRIT_DAMAGE));
+            System.out.println(user.getName() + " enters Stoic Stance! Crit chance +50%, Crit damage +50% for 2 turns.");
         }
 
         @Override
@@ -68,17 +69,16 @@ public class KucingCukurukuk extends Hero {
         }
     }
 
-    private class SandRequiemSkill extends Skill implements SkillWithTargetType {
-    public SandRequiemSkill() {
-        super("Sand Requiem", 70, 0);
-    }
+    public class SandRequiemSkill extends Ultimate {
+        public SandRequiemSkill() {
+            super("Sand Requiem", 0, TargetType.ALL_ENEMIES);
+        }
 
-    @Override
-    public void use(Hero user, Hero target) {
-    }
+        @Override
+        public void use(Hero user, Hero target) {}
 
-    public void useAOE(Hero user, List<Hero> targets) {
-        for (Hero target : targets) {
+        public void useAOE(Hero user, List<Hero> targets) {
+            for (Hero target : targets) {
                 int damage = (int) (user.getAttackPower() * 2.00);
                 target.applyDamage(damage);
                 System.out.println(user.getName() + " uses Sand Requiem on " + target.getName() + " for " + damage + " damage!");

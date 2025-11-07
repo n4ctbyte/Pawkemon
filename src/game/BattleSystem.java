@@ -3,8 +3,10 @@ package game;
 import game.Player;
 import game.Hero;
 import skill.AoeSkill;
+import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import java.util.*;
 
 public class BattleSystem {
@@ -86,30 +88,51 @@ public class BattleSystem {
             return;
         }
 
-        Skill skill = chooseSkill(activeHero);
-        if (skill == null) return;
+        Skill skill = null;
 
-        List<Hero> targets = chooseTargetsForSkill(activeHero, skill);
-        if (targets.isEmpty()) {
-            System.out.println("No valid targets for this skill.");
-            return;
-        }
+        while (true) {
+            skill = chooseSkill(activeHero);
+            if (skill == null) {
+                activeHero = chooseHero();
+                if (activeHero == null) {
+                    System.out.println("No valid hero selected. Turn skipped.");
+                    return;
+                }
+                continue;
+            }
 
-        if (skill instanceof SkillWithTargetType) {
-            SkillWithTargetType typedSkill = (SkillWithTargetType) skill;
-            TargetType targetType = typedSkill.getTargetType();
+            List<Hero> targets = chooseTargetsForSkill(activeHero, skill);
+            if (targets.isEmpty()) {
+                continue;
+            }
 
-            if (isAOE(targetType)) {
-                invokeAOESkill(activeHero, skill, targets);
+            if (!(skill instanceof BasicAttack)) {
+                activeHero.currentEnergy -= skill.getEnergyCost();
+                skill.startCooldown();
+            }
+
+            if (skill instanceof SkillWithTargetType) {
+                SkillWithTargetType typedSkill = (SkillWithTargetType) skill;
+                TargetType targetType = typedSkill.getTargetType();
+
+                if (isAOE(targetType)) {
+                    invokeAOESkill(activeHero, skill, targets);
+                } else {
+                    for (Hero target : targets) {
+                        skill.use(activeHero, target);
+                    }
+                }
             } else {
-                for (Hero target : targets) {
-                    skill.use(activeHero, target);
+                if (!targets.isEmpty()) {
+                    skill.use(activeHero, targets.get(0));
                 }
             }
-        } else {
-            if (!targets.isEmpty()) {
-                skill.use(activeHero, targets.get(0));
+
+            if (skill instanceof Ultimate) {
+                activeHero.setUltimateBar(0);
             }
+
+            break;
         }
 
         if (!(skill instanceof skill.BasicAttack)) {
@@ -155,41 +178,85 @@ public class BattleSystem {
     }
 
     private Skill chooseSkill(Hero hero) {
-        System.out.println("Choose a skill for " + hero.getName() + ":");
-        int i = 0;
-        for (Skill s : hero.getSkills()) {
-            String status = s.isReady() ? " [READY]" : " [COOLDOWN: " + s.getCurrentCooldown() + "]";
-            System.out.println((i + 1) + ". " + s.getName() + " (Cost: " + s.getEnergyCost() + ")" + status);
-            i++;
-        }
-        int choice = scanner.nextInt() - 1;
-        if (choice >= 0 && choice < hero.getSkills().size()) {
-            Skill selected = hero.getSkills().get(choice);
-            if (selected.isReady() && hero.getCurrentEnergy() >= selected.getEnergyCost()) {
-                hero.currentEnergy -= selected.getEnergyCost();
-                if (selected.getCooldown() > 0) {
-                    selected.startCooldown();
+        while (true) {
+            System.out.println("Choose a skill for " + hero.getName() + ":");
+            int i = 0;
+            for (Skill s : hero.getSkills()) {
+                String status;
+                if (s instanceof Ultimate) {
+                    status = (hero.getUltimateBar() >= 100) ? " [READY]" : " [ULTIMATE NOT READY]";
+                } else {
+                    status = s.isReady() ? " [READY]" : " [COOLDOWN: " + s.getCurrentCooldown() + "]";
                 }
-                return selected;
-            } else {
-                System.out.println("Not enough energy or skill on cooldown!");
+                System.out.println((i + 1) + ". " + s.getName() + " (Cost: " + s.getEnergyCost() + ")" + status);
+                i++;
+            }
+            System.out.println((i + 1) + ". Back");
+
+            int choice = scanner.nextInt() - 1;
+
+            if (choice == i) {
+                System.out.println("Going back to choose hero.");
                 return null;
             }
-        }
-        System.out.println("Invalid choice!");
-        return null;
-    }
 
-    private void reduceAllStatusEffectDurations() {
-        for (Hero h : player1.getTeam()) {
-            h.reduceStatusEffectDurations();
-        }
-        for (Hero h : player2.getTeam()) {
-            h.reduceStatusEffectDurations();
+            if (choice >= 0 && choice < hero.getSkills().size()) {
+                Skill selected = hero.getSkills().get(choice);
+
+                if (selected instanceof Ultimate) {
+                    if (hero.getUltimateBar() >= 100) {
+                        return selected;
+                    } else {
+                        System.out.println("Ultimate not ready! Choose another skill.");
+                        continue;
+                    }
+                } else {
+                    if (selected.isReady() && hero.getCurrentEnergy() >= selected.getEnergyCost()) {
+                        return selected;
+                    } else {
+                        System.out.println("Not enough energy or skill on cooldown! Choose another skill.");
+                        continue;
+                    }
+                }
+            }
+            System.out.println("Invalid choice! Try again.");
         }
     }
 
     private List<Hero> chooseTargetsForSkill(Hero user, Skill skill) {
+        boolean isTaunted = false;
+        Hero taunter = null;
+        for (StatusEffect effect : user.getActiveEffects()) {
+            if (effect.getType() == StatusEffect.Type.TAUNT) {
+                isTaunted = true;
+                Player enemyTeam = (currentPlayer == player1) ? player2 : player1;
+                for (Hero h : enemyTeam.getTeam()) {
+                    if (h.getName().equals(effect.getSource())) {
+                        taunter = h;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (isTaunted && taunter != null) {
+            if (skill instanceof SkillWithTargetType) {
+                SkillWithTargetType typedSkill = (SkillWithTargetType) skill;
+                TargetType targetType = typedSkill.getTargetType();
+
+                if (targetType == TargetType.SINGLE_ENEMY) {
+                    return Arrays.asList(taunter);
+                } else if (targetType == TargetType.ALL_ENEMIES) {
+                    return Arrays.asList(taunter);
+                } else {
+                    return Arrays.asList(taunter);
+                }
+            } else {
+                return Arrays.asList(taunter);
+            }
+        }
+
         if (skill instanceof SkillWithTargetType) {
             SkillWithTargetType typedSkill = (SkillWithTargetType) skill;
             TargetType targetType = typedSkill.getTargetType();
@@ -198,13 +265,19 @@ public class BattleSystem {
                 case SELF:
                     return Arrays.asList(user);
                 case SINGLE_ALLY:
-                    Hero ally = chooseAlly();
-                    return ally != null ? Arrays.asList(ally) : new ArrayList<>();
+                    Hero ally = chooseAlly(skill);
+                    if (ally == null) return new ArrayList<>();
+                    return Arrays.asList(ally);
                 case SINGLE_ENEMY:
                     Hero enemy = chooseEnemy();
-                    return enemy != null ? Arrays.asList(enemy) : new ArrayList<>();
+                    if (enemy == null) return new ArrayList<>();
+                    return Arrays.asList(enemy);
                 case ALL_ALLIES:
-                    return new ArrayList<>(currentPlayer.getAliveHeroes());
+                    if (skill.getName().equals("Divine Tears")) {
+                        return new ArrayList<>(currentPlayer.getTeam());
+                    } else {
+                        return new ArrayList<>(currentPlayer.getAliveHeroes());
+                    }
                 case ALL_ENEMIES:
                     Player enemyTeam = (currentPlayer == player1) ? player2 : player1;
                     return new ArrayList<>(enemyTeam.getAliveHeroes());
@@ -214,39 +287,81 @@ public class BattleSystem {
             }
         } else {
             Hero singleTarget = chooseEnemy();
-            return singleTarget != null ? Arrays.asList(singleTarget) : new ArrayList<>();
+            if (singleTarget == null) return new ArrayList<>();
+            return Arrays.asList(singleTarget);
         }
     }
 
-    private Hero chooseAlly() {
-        System.out.println("Choose an ally:");
-        int i = 0;
-        for (Hero h : currentPlayer.getAliveHeroes()) {
-            System.out.println((i + 1) + ". " + h.getName() + " (HP: " + h.getCurrentHP() + ")");
-            i++;
+    private Hero chooseAlly(Skill skill) {
+        while (true) {
+            System.out.println("Choose an ally:");
+            int i = 0;
+            List<Hero> availableAllies = new ArrayList<>();
+            for (Hero h : currentPlayer.getTeam()) {
+                if (skill.getName().equals("Divine Tears")) {
+                    String status = h.isAlive() ? " (HP: " + h.getCurrentHP() + ")" : " (DEAD)";
+                    System.out.println((i + 1) + ". " + h.getName() + status);
+                    availableAllies.add(h);
+                    i++;
+                } else {
+                    if (h.isAlive()) {
+                        System.out.println((i + 1) + ". " + h.getName() + " (HP: " + h.getCurrentHP() + ")");
+                        availableAllies.add(h);
+                        i++;
+                    }
+                }
+            }
+            System.out.println((i + 1) + ". Back");
+
+            if (availableAllies.isEmpty()) {
+                System.out.println("No valid allies to choose.");
+                return null;
+            }
+
+            int choice = scanner.nextInt() - 1;
+
+            if (choice == i) {
+                System.out.println("Going back to choose skill.");
+                return null;
+            }
+
+            if (choice >= 0 && choice < availableAllies.size()) {
+                Hero selected = availableAllies.get(choice);
+
+                if (skill.getName().equals("Divine Tears") && selected.isAlive()) {
+                    System.out.println(selected.getName() + " is still alive! You can only revive dead heroes.");
+                    continue;
+                }
+
+                return selected;
+            }
+            System.out.println("Invalid choice! Try again.");
         }
-        int choice = scanner.nextInt() - 1;
-        if (choice >= 0 && choice < currentPlayer.getAliveHeroes().size()) {
-            return currentPlayer.getAliveHeroes().get(choice);
-        }
-        System.out.println("Invalid choice!");
-        return null;
     }
 
     private Hero chooseEnemy() {
-        Player targetTeam = (currentPlayer == player1) ? player2 : player1;
-        System.out.println("Choose target:");
-        int i = 0;
-        for (Hero h : targetTeam.getAliveHeroes()) {
-            System.out.println((i + 1) + ". " + h.getName() + " (HP: " + h.getCurrentHP() + ")");
-            i++;
+        while (true) {
+            Player targetTeam = (currentPlayer == player1) ? player2 : player1;
+            System.out.println("Choose target:");
+            int i = 0;
+            for (Hero h : targetTeam.getAliveHeroes()) {
+                System.out.println((i + 1) + ". " + h.getName() + " (HP: " + h.getCurrentHP() + ")");
+                i++;
+            }
+            System.out.println((i + 1) + ". Back");
+
+            int choice = scanner.nextInt() - 1;
+
+            if (choice == i) {
+                System.out.println("Going back to choose skill.");
+                return null;
+            }
+
+            if (choice >= 0 && choice < targetTeam.getAliveHeroes().size()) {
+                return targetTeam.getAliveHeroes().get(choice);
+            }
+            System.out.println("Invalid choice! Try again.");
         }
-        int choice = scanner.nextInt() - 1;
-        if (choice >= 0 && choice < targetTeam.getAliveHeroes().size()) {
-            return targetTeam.getAliveHeroes().get(choice);
-        }
-        System.out.println("Invalid choice!");
-        return null;
     }
 
     private boolean isAOE(TargetType targetType) {
@@ -273,6 +388,15 @@ public class BattleSystem {
             for (Hero target : targets) {
                 skill.use(user, target);
             }
+        }
+    }
+
+    private void reduceAllStatusEffectDurations() {
+        for (Hero h : player1.getTeam()) {
+            h.reduceStatusEffectDurations();
+        }
+        for (Hero h : player2.getTeam()) {
+            h.reduceStatusEffectDurations();
         }
     }
 

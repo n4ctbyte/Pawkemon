@@ -6,6 +6,7 @@ import skill.AoeSkill;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
@@ -73,14 +74,21 @@ public class CryingHamster extends Hero {
         }
     }
 
-    private class DivineTearsSkill extends Skill implements SkillWithTargetType {
+    private class DivineTearsSkill extends Ultimate {
         public DivineTearsSkill() {
-            super("Divine Tears", 70, 0);
+            super("Divine Tears", 0, TargetType.SINGLE_ALLY);
         }
 
         @Override
         public void use(Hero user, Hero target) {
-            System.out.println(target.getName() + " is revived with 50% HP by Divine Tears!");
+            if (target.isDead()) {
+                target.setCurrentHP((int) (target.getMaxHP() * 0.50));
+                System.out.println(target.getName() + " is revived with 50% HP by Divine Tears!");
+            }
+            else {
+                System.out.println(target.getName() + " is not dead and cannot be revived");
+                return;
+            }
             user.setUltimateBar(0);
         }
 

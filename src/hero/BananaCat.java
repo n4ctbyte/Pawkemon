@@ -5,6 +5,7 @@ import game.Player;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
@@ -63,32 +64,29 @@ public class BananaCat extends Hero {
         }
     }
 
-    private class BananaHeartRoarSkill extends Skill implements SkillWithTargetType {
+    public class BananaHeartRoarSkill extends Ultimate {
         public BananaHeartRoarSkill() {
-            super("Banana Heart Roar", 70, 0);
+            super("Banana Heart Roar", 0, TargetType.ALL_ENEMIES);
         }
 
         @Override
-        public void use(Hero user, Hero target) {
-            
-        }
+        public void use(Hero user, Hero target) {}
 
+        @Override
         public void useAOE(Hero user, List<Hero> targets, Player player) {
             for (Hero enemy : targets) {
-                enemy.addStatusEffect(new StatusEffect(StatusEffect.Type.TAUNT, 1, 0, null));
+                StatusEffect tauntEffect = new StatusEffect(StatusEffect.Type.TAUNT, 2, 0, null);
+                tauntEffect.setSource(user.getName());
+                enemy.addStatusEffect(tauntEffect);
             }
-            
+
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (ally.getMaxHP() * 0.10);
+                ally.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 2, shield, null));
                 System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
             }
             System.out.println(user.getName() + " forces enemies to attack him and shields allies!");
             user.setUltimateBar(0);
-        }
-
-        @Override
-        public TargetType getTargetType() {
-            return TargetType.ALL_ENEMIES;
         }
     }
 }

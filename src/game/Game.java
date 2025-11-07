@@ -13,7 +13,7 @@ public class Game {
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        System.out.println("=== Pokemon-like Battle Game ===");
+        System.out.println("=== PAWKEMON ===");
 
         Player player1 = createPlayer("Player 1");
         Player player2 = createPlayer("Player 2");

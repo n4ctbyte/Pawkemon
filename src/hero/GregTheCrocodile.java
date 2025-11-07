@@ -5,6 +5,7 @@ import game.Player;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
@@ -30,7 +31,6 @@ public class GregTheCrocodile extends Hero {
         public void use(Hero user, Hero target) {
             int damage = (int) (target.getMaxHP() * 0.03) + user.getAttackPower();
             target.applyDamage(damage);
-            // Defense buff
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 2, (int) (user.getDefense() * 0.10), Attribute.DEFENSE));
             System.out.println(target.getName() + " takes " + damage + " damage from Thick Mud!");
             System.out.println(user.getName() + "'s defense increases by 10% for 2 turns.");
@@ -59,14 +59,13 @@ public class GregTheCrocodile extends Hero {
         }
     }
 
-    private class DeathRollSkill extends Skill implements SkillWithTargetType {
+    public class DeathRollSkill extends Ultimate {
         public DeathRollSkill() {
-            super("Death Roll", 70, 0);
+            super("Death Roll", 0, TargetType.ALL_ENEMIES);
         }
 
         @Override
         public void use(Hero user, Hero target) {
-
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
@@ -77,7 +76,7 @@ public class GregTheCrocodile extends Hero {
 
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (user.getMaxHP() * 0.10);
-
+                ally.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 2, shield, null));
                 System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
             }
             System.out.println(user.getName() + " uses Death Roll, debuffs enemies and shields allies!");

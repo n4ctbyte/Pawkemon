@@ -5,6 +5,7 @@ import game.Player;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
@@ -65,26 +66,27 @@ public class SadCat extends Hero {
         }
     }
 
-    private class CrescendoOfHopeSkill extends Skill implements SkillWithTargetType {
+    public class CrescendoOfHopeSkill extends Ultimate {
         public CrescendoOfHopeSkill() {
-            super("Crescendo of Hope", 70, 0);
+            super("Crescendo of Hope", 0, TargetType.ALL_ALLIES);
         }
 
         @Override
-        public void use(Hero user, Hero target) {
-        }
+        public void use(Hero user, Hero target) {}
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
             for (Hero ally : player.getTeam()) {
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, 20, Attribute.ATTACK));
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, 20, Attribute.DEFENSE));
-                ally.gainEnergy((int) (ally.getMaxEnergy() * 0.20));
-                if (ally.getCurrentHP() < ally.getMaxHP() * 0.5) {
-                    // Damage reduction
-                }
+
+                int energyRestore = (int) (ally.getMaxEnergy() * 0.15);
+                ally.gainEnergy(energyRestore);
+
                 ally.clearDebuffs();
+
+                System.out.println(ally.getName() + " receives +20% attack and defense, gains " + energyRestore + " energy, and debuffs cleared.");
             }
-            System.out.println(user.getName() + " buffs allies, restores energy, and removes debuffs!");
+            System.out.println(user.getName() + " uses Crescendo of Hope! All allies are buffed, restored, and cleansed.");
             user.setUltimateBar(0);
         }
 

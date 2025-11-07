@@ -1,9 +1,11 @@
 package hero;
 
 import game.Hero;
+import game.Player;
 import skill.BasicAttack;
 import skill.Skill;
 import skill.SkillWithTargetType;
+import skill.Ultimate;
 import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
@@ -67,9 +69,9 @@ public class KucingAkmal extends Hero {
         }
     }
 
-    private class AkmalCycloneSkill extends Skill implements SkillWithTargetType {
+    public class AkmalCycloneSkill extends Ultimate {
         public AkmalCycloneSkill() {
-            super("Akmal Cyclone", 70, 0);
+            super("Akmal Cyclone", 0, TargetType.ALL_ENEMIES);
         }
 
         @Override
@@ -85,6 +87,10 @@ public class KucingAkmal extends Hero {
                 System.out.println(target.getName() + " is affected by damage over time from Akmal Cyclone!");
             }
             user.setUltimateBar(0);
+        }
+
+        public void useAOE(Hero user, List<Hero> targets, Player player) {
+            useAOE(user, targets);
         }
 
         @Override
