@@ -10,6 +10,7 @@ import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
 import java.util.List;
+import game.BattleLogger;
 
 public class GregTheCrocodile extends Hero {
     private int defenseBuff = 0;
@@ -32,8 +33,8 @@ public class GregTheCrocodile extends Hero {
             int damage = (int) (target.getMaxHP() * 0.03) + user.getAttackPower();
             target.applyDamage(damage);
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 2, (int) (user.getDefense() * 0.10), Attribute.DEFENSE));
-            System.out.println(target.getName() + " takes " + damage + " damage from Thick Mud!");
-            System.out.println(user.getName() + "'s defense increases by 10% for 2 turns.");
+            BattleLogger.getInstance().log(target.getName() + " takes " + damage + " damage from Thick Mud!");
+            BattleLogger.getInstance().log(user.getName() + "'s defense increases by 10% for 2 turns.");
         }
 
         @Override
@@ -50,7 +51,7 @@ public class GregTheCrocodile extends Hero {
         @Override
         public void use(Hero user, Hero target) {
             target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, 2, 0, null));
-            System.out.println(target.getName() + " is stunned for 1 turn by Warning Bite!");
+            BattleLogger.getInstance().log(target.getName() + " is stunned for 1 turn by Warning Bite!");
         }
 
         @Override
@@ -77,9 +78,9 @@ public class GregTheCrocodile extends Hero {
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (user.getMaxHP() * 0.10);
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 2, shield, null));
-                System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
+                BattleLogger.getInstance().log(ally.getName() + " gains shield for " + shield + " HP.");
             }
-            System.out.println(user.getName() + " uses Death Roll, debuffs enemies and shields allies!");
+            BattleLogger.getInstance().log(user.getName() + " uses Death Roll, debuffs enemies and shields allies!");
             user.setUltimateBar(0);
         }
 

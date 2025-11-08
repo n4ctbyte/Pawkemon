@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="rootBox" alignment="TOP_LEFT" prefWidth="320.0" spacing="5.0"
+      style="-fx-background-color: rgba(0, 0, 0, 0.7); -fx-background-radius: 10; -fx-border-color: transparent; -fx-border-width: 1; -fx-border-radius: 10;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ui.HeroCardController">
+   <children>
+      <Label fx:id="heroNameLabel" text="Hero Name" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
+      <HBox spacing="10.0">
+         <children>
+            <VBox alignment="CENTER" spacing="5.0">
+               <children>
+                  <ImageView fx:id="heroImageView" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </VBox>
+            <VBox spacing="5.0">
+               <children>
+                  <GridPane hgap="10.0" vgap="2.0">
+                     <columnConstraints>
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="105.0" />
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="105.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <HBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                           <children>
+                              <Label text="ATK:" textFill="#e74c3c"><font><Font name="System Bold" size="10.0" /></font></Label>
+                              <Label fx:id="atkLabel" text="0" textFill="WHITE"><font><Font size="10.0" /></font></Label>
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                           <children>
+                              <Label text="DEF:" textFill="#3498db"><font><Font name="System Bold" size="10.0" /></font></Label>
+                              <Label fx:id="defLabel" text="0" textFill="WHITE"><font><Font size="10.0" /></font></Label>
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                           <children>
+                              <Label text="CRIT%:" textFill="#f1c40f"><font><Font name="System Bold" size="10.0" /></font></Label>
+                              <Label fx:id="critChanceLabel" text="0%" textFill="WHITE"><font><Font size="10.0" /></font></Label>
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <children>
+                              <Label text="CRITDMG:" textFill="#f1c40f"><font><Font name="System Bold" size="10.0" /></font></Label>
+                              <Label fx:id="critDmgLabel" text="0%" textFill="WHITE"><font><Font size="10.0" /></font></Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </GridPane>
+                  <VBox spacing="1.0">
+                     <children>
+                        <StackPane>
+                           <children>
+                              <ProgressBar fx:id="hpBar" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #2ecc71;" />
+                              <Label fx:id="hpLabel" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;" text="100/100" />
+                           </children>
+                        </StackPane>
+                        <StackPane>
+                           <children>
+                              <ProgressBar fx:id="energyBar" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #3498db;" />
+                              <Label fx:id="energyLabel" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;" text="100/100" />
+                           </children>
+                        </StackPane>
+                        <StackPane>
+                           <children>
+                              <ProgressBar fx:id="ultBar" prefHeight="15.0" prefWidth="220.0" progress="0.0" style="-fx-accent: #f1c40f;" />
+                              <Label fx:id="ultLabel" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;" text="0/100" />
+                           </children>
+                        </StackPane>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <HBox fx:id="statusBox" alignment="CENTER_LEFT" minHeight="20.0" prefWidth="300.0" spacing="4.0" style="-fx-padding: 5 0 0 0;" />
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</VBox>

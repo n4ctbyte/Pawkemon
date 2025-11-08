@@ -11,12 +11,13 @@ import game.Attribute;
 import game.TargetType;
 import java.util.List;
 import java.util.Random;
+import game.BattleLogger;
 
 public class KucingAkmal extends Hero {
     private static final Random random = new Random();
 
     public KucingAkmal() {
-        super("Kucing Akmal", 100, 20, 0, 100);
+        super("Kucing Akmal", 100, 1000, 0, 100);
         addSkill(new BasicAttack());
         addSkill(new WhiskerVortexSkill());
         addSkill(new RotailStrikeSkill());
@@ -33,7 +34,7 @@ public class KucingAkmal extends Hero {
             int baseAttack = user.getBaseAttack();
             int buffAmount = (int) (baseAttack * 0.10);
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, buffAmount, Attribute.ATTACK));
-            System.out.println(user.getName() + " uses Whisker Vortex! Attack increased by " + buffAmount + " and debuffs cleared.");
+            BattleLogger.getInstance().log(user.getName() + " uses Whisker Vortex! Attack increased by " + buffAmount + " and debuffs cleared.");
             user.clearDebuffs();
         }
 
@@ -52,14 +53,14 @@ public class KucingAkmal extends Hero {
         public void use(Hero user, Hero target) {
             int damage = (int) (user.getAttackPower() * 1.20);
             target.applyDamage(damage);
-            System.out.println(user.getName() + " uses Rotail Strike on " + target.getName() + " for " + damage + " damage!");
+            BattleLogger.getInstance().log(user.getName() + " uses Rotail Strike on " + target.getName() + " for " + damage + " damage!");
 
             if (random.nextDouble() < 0.90) {
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.DOT, 5, 10, null));
-                System.out.println(target.getName() + " is affected by damage over time from Rotail Strike!");
+                BattleLogger.getInstance().log(target.getName() + " is affected by damage over time from Rotail Strike!");
 
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, 1, 0, null));
-                System.out.println(target.getName() + " is stunned for 1 turns by Rotail Strike!");
+                BattleLogger.getInstance().log(target.getName() + " is stunned for 1 turns by Rotail Strike!");
             }
         }
 
@@ -82,9 +83,9 @@ public class KucingAkmal extends Hero {
             for (Hero target : targets) {
                 int damage = (int) (user.getAttackPower() * 2.40);
                 target.applyDamage(damage);
-                System.out.println(user.getName() + " uses Akmal Cyclone on " + target.getName() + " for " + damage + " damage!");
+                BattleLogger.getInstance().log(user.getName() + " uses Akmal Cyclone on " + target.getName() + " for " + damage + " damage!");
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.DOT, 3, 10, null));
-                System.out.println(target.getName() + " is affected by damage over time from Akmal Cyclone!");
+                BattleLogger.getInstance().log(target.getName() + " is affected by damage over time from Akmal Cyclone!");
             }
             user.setUltimateBar(0);
         }

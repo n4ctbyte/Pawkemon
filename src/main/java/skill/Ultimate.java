@@ -4,6 +4,7 @@ import game.Hero;
 import game.Player;
 import game.TargetType;
 import java.util.List;
+import game.BattleLogger;
 
 public class Ultimate extends Skill implements SkillWithTargetType {
     private TargetType targetType;
@@ -17,7 +18,7 @@ public class Ultimate extends Skill implements SkillWithTargetType {
     public void use(Hero user, Hero target) {
         int damage = user.getAttackPower() * 2;
         target.applyDamage(damage);
-        System.out.println(user.getName() + " uses " + name + " on " + target.getName() + " for " + damage + " damage!");
+        BattleLogger.getInstance().log(user.getName() + " uses " + name + " on " + target.getName() + " for " + damage + " damage!");
         user.setUltimateBar(0);
     }
 

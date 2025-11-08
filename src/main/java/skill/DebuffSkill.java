@@ -4,6 +4,7 @@ import game.Attribute;
 import game.Hero;
 import game.StatusEffect;
 import game.TargetType;
+import game.BattleLogger;
 
 public class DebuffSkill extends Skill implements SkillWithTargetType {
     private int debuffAmount;
@@ -22,7 +23,7 @@ public class DebuffSkill extends Skill implements SkillWithTargetType {
     @Override
     public void use(Hero user, Hero target) {
         target.addStatusEffect(new StatusEffect(StatusEffect.Type.DEBUFF, duration, debuffAmount, attribute));
-        System.out.println(user.getName() + " debuffs " + target.getName() + "'s " + attribute + " by " + debuffAmount + " for " + duration + " turns!");
+        BattleLogger.getInstance().log(user.getName() + " debuffs " + target.getName() + "'s " + attribute + " by " + debuffAmount + " for " + duration + " turns!");
     }
 
     @Override

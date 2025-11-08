@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="1000.0"
+           style="-fx-background-image: url('/images/menu.png'); -fx-background-size: cover; -fx-background-position: center;"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="ui.MainMenuController">
+   <children>
+      <VBox alignment="CENTER" spacing="30.0">
+         <children>
+            <Label text="Pawkemon" textFill="WHITE">
+               <font>
+                  <Font name="Pokemon Solid" size="100.0" />
+               </font>
+               <padding>
+                  <Insets bottom="20.0" />
+               </padding>
+            </Label>
+            <Button fx:id="battleButton" mnemonicParsing="false" onAction="#onBattleClicked"
+                    prefHeight="60.0" prefWidth="250.0"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;"
+                    text="Battle" />
+            <Button fx:id="devsButton" mnemonicParsing="false" onAction="#onMeetDevsClicked"
+                    prefHeight="60.0" prefWidth="250.0"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;"
+                    text="Meet Ur Devs" />
+            <Button fx:id="creditsButton" mnemonicParsing="false" onAction="#onCreditsClicked"
+                    prefHeight="60.0" prefWidth="250.0"
+                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;"
+                    text="Credits" />
+         </children>
+      </VBox>
+   </children>
+</StackPane>

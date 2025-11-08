@@ -37,6 +37,11 @@ public abstract class Skill {
         }
     }
 
+    public void resetCooldown() {
+        currentCooldown = 0;
+        isAvailable = true;
+    }
+
     public boolean isReady() { return isAvailable && currentCooldown == 0; }
     public int getEnergyCost() { return energyCost; }
     public String getName() { return name; }

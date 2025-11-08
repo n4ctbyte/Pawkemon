@@ -1,4 +1,5 @@
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\game\Attribute.java
+D:\Documents\PROJECT PBO\Pawkemon\src\main\java\game\BattleLogger.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\game\BattleSystem.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\game\Game.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\game\Hero.java
@@ -26,5 +27,10 @@ D:\Documents\PROJECT PBO\Pawkemon\src\main\java\skill\StunSkill.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\skill\TauntSkill.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\skill\Ultimate.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\BattleSceneController.java
+D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\CreditsController.java
+D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\DevelopersController.java
+D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\HeroCardController.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\Main.java
+D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\MainMenuController.java
 D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\SelectionSceneController.java
+D:\Documents\PROJECT PBO\Pawkemon\src\main\java\ui\SplashScreenController.java

@@ -2,6 +2,7 @@ package skill;
 
 import game.Hero;
 import game.TargetType;
+import game.BattleLogger;
 
 public class HealSkill extends Skill implements SkillWithTargetType {
     private int healAmount;
@@ -16,7 +17,7 @@ public class HealSkill extends Skill implements SkillWithTargetType {
     @Override
     public void use(Hero user, Hero target) {
         user.heal(healAmount);
-        System.out.println(user.getName() + " heals " + healAmount + " HP!");
+        BattleLogger.getInstance().log(user.getName() + " heals " + healAmount + " HP!");
     }
 
     @Override

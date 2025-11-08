@@ -2,6 +2,7 @@ package skill;
 
 import game.Hero;
 import skill.BasicAttack;
+import game.BattleLogger;
 
 public class BasicAttack extends Skill {
     public BasicAttack() {
@@ -12,6 +13,6 @@ public class BasicAttack extends Skill {
     public void use(Hero user, Hero target) {
         int damage = user.calculateDamage(user.getAttackPower());
         target.applyDamage(damage);
-        System.out.println(user.getName() + " uses Basic Attack on " + target.getName() + " for " + damage + " damage!");
+        BattleLogger.getInstance().log(user.getName() + " uses Basic Attack on " + target.getName() + " for " + damage + " damage!");
     }
 }

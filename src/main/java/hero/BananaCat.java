@@ -10,6 +10,7 @@ import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
 import java.util.List;
+import game.BattleLogger;
 
 public class BananaCat extends Hero {
     public BananaCat() {
@@ -37,7 +38,7 @@ public class BananaCat extends Hero {
 
             int stunTurns = hasShield ? 3 : 2;
             target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, stunTurns, 0, null));
-            System.out.println(target.getName() + " is stunned for " + (stunTurns - 1) + " turn(s) by Banana Bop!");
+            BattleLogger.getInstance().log(target.getName() + " is stunned for " + (stunTurns - 1) + " turn(s) by Banana Bop!");
         }
 
         @Override
@@ -55,7 +56,7 @@ public class BananaCat extends Hero {
         public void use(Hero user, Hero target) {
             int shield = (int) (user.getMaxHP() * 0.20);
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 4, shield, Attribute.SHIELD_AMOUNT));
-            System.out.println(user.getName() + " gains shield for " + shield + " HP.");
+            BattleLogger.getInstance().log(user.getName() + " gains shield for " + shield + " HP.");
         }
 
         @Override
@@ -83,9 +84,9 @@ public class BananaCat extends Hero {
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (ally.getMaxHP() * 0.10);
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 2, shield, null));
-                System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
+                BattleLogger.getInstance().log(ally.getName() + " gains shield for " + shield + " HP.");
             }
-            System.out.println(user.getName() + " forces enemies to attack him and shields allies!");
+            BattleLogger.getInstance().log(user.getName() + " forces enemies to attack him and shields allies!");
             user.setUltimateBar(0);
         }
     }

@@ -11,6 +11,7 @@ import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
 import java.util.List;
+import game.BattleLogger;
 
 public class KucingCukurukuk extends Hero {
     public KucingCukurukuk() {
@@ -30,7 +31,7 @@ public class KucingCukurukuk extends Hero {
         public void use(Hero user, Hero target) {
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 50, Attribute.CRIT_CHANCE));
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 50, Attribute.CRIT_DAMAGE));
-            System.out.println(user.getName() + " enters Stoic Stance! Crit chance +50%, Crit damage +50% for 2 turns.");
+            BattleLogger.getInstance().log(user.getName() + " enters Stoic Stance! Crit chance +50%, Crit damage +50% for 2 turns.");
         }
 
         @Override
@@ -52,11 +53,11 @@ public class KucingCukurukuk extends Hero {
             for (Hero target : targets) {
                 int damage = (int) (user.getAttackPower() * 1.10);
                 target.applyDamage(damage);
-                System.out.println(user.getName() + " uses Psycho Scoop on " + target.getName() + " for " + damage + " damage!");
+                BattleLogger.getInstance().log(user.getName() + " uses Psycho Scoop on " + target.getName() + " for " + damage + " damage!");
             }
 
             user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 2, 40, Attribute.DODGE_CHANCE));
-            System.out.println(user.getName() + " gains 40% dodge chance for 2 turn.");
+            BattleLogger.getInstance().log(user.getName() + " gains 40% dodge chance for 2 turn.");
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
@@ -81,7 +82,7 @@ public class KucingCukurukuk extends Hero {
             for (Hero target : targets) {
                 int damage = (int) (user.getAttackPower() * 2.00);
                 target.applyDamage(damage);
-                System.out.println(user.getName() + " uses Sand Requiem on " + target.getName() + " for " + damage + " damage!");
+                BattleLogger.getInstance().log(user.getName() + " uses Sand Requiem on " + target.getName() + " for " + damage + " damage!");
             }
             user.setUltimateBar(0);
         }

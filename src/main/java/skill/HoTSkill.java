@@ -3,6 +3,7 @@ package skill;
 import game.Hero;
 import game.StatusEffect;
 import game.TargetType;
+import game.BattleLogger;
 
 public class HoTSkill extends Skill implements SkillWithTargetType {
     private int healPerTurn;
@@ -19,7 +20,7 @@ public class HoTSkill extends Skill implements SkillWithTargetType {
     @Override
     public void use(Hero user, Hero target) {
         target.addStatusEffect(new StatusEffect(StatusEffect.Type.HEAL_OVER_TIME, duration, healPerTurn, null));
-        System.out.println(user.getName() + " applies " + name + " to " + target.getName() + " for " + duration + " turns!");
+        BattleLogger.getInstance().log(user.getName() + " applies " + name + " to " + target.getName() + " for " + duration + " turns!");
     }
 
     @Override public TargetType getTargetType() {

@@ -1,5 +1,6 @@
 package skill;
 import game.Hero;
+import game.BattleLogger;
 
 public class TauntSkill extends Skill {
     public TauntSkill(String name, int energyCost, int cooldown) {
@@ -8,6 +9,6 @@ public class TauntSkill extends Skill {
 
     @Override
     public void use(Hero user, Hero target) {
-        System.out.println(user.getName() + " taunts " + target.getName() + "! Next turn, " + target.getName() + " must attack " + user.getName() + ".");
+        BattleLogger.getInstance().log(user.getName() + " taunts " + target.getName() + "! Next turn, " + target.getName() + " must attack " + user.getName() + ".");
     }
 }

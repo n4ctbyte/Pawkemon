@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="1000.0"
+           style="-fx-background-color: black;"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="ui.SplashScreenController">
+   <children>
+      <VBox fx:id="brandBox" alignment="CENTER" spacing="30.0" opacity="0.0">
+         <children>
+            <ImageView fx:id="logoView" fitHeight="250.0" fitWidth="250.0"
+                       pickOnBounds="true" preserveRatio="true" opacity="0.0" />
+            <Label fx:id="brandLabel" text="" textFill="white">
+               <font>
+                  <Font name="Transcity" size="80.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</StackPane>

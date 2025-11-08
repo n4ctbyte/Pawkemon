@@ -1,4 +1,5 @@
 package skill;
+import game.BattleLogger;
 import game.Hero;
 import game.StatusEffect;
 import game.TargetType;
@@ -16,7 +17,7 @@ public class StunSkill extends Skill implements SkillWithTargetType {
     @Override
     public void use(Hero user, Hero target) {
         target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, duration, 0, null));
-        System.out.println(user.getName() + " stuns " + target.getName() + " for " + duration + " turn(s)!");
+        BattleLogger.getInstance().log(user.getName() + " stuns " + target.getName() + " for " + duration + " turn(s)!");
     }
 
     @Override

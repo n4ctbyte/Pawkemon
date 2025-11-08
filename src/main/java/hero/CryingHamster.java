@@ -11,6 +11,7 @@ import game.StatusEffect;
 import game.Attribute;
 import game.TargetType;
 import java.util.List;
+import game.BattleLogger;
 
 public class CryingHamster extends Hero {
 
@@ -31,7 +32,7 @@ public class CryingHamster extends Hero {
         public void use(Hero user, Hero target) {
             int heal = (int) (target.getMaxHP() * 0.30);
             target.heal(heal);
-            System.out.println(target.getName() + " is healed for " + heal + " HP by Tears of Cuteness!");
+            BattleLogger.getInstance().log(target.getName() + " is healed for " + heal + " HP by Tears of Cuteness!");
         }
 
         @Override
@@ -53,9 +54,9 @@ public class CryingHamster extends Hero {
             for (Hero target : targets) {
                 int damage = (int) (user.getAttackPower() * 0.25);
                 target.applyDamage(damage);
-                System.out.println(target.getName() + " takes " + damage + " damage from Cuteness Overflow!");
+                BattleLogger.getInstance().log(target.getName() + " takes " + damage + " damage from Cuteness Overflow!");
             }
-            System.out.println(user.getName() + " attacks enemies!");
+            BattleLogger.getInstance().log(user.getName() + " attacks enemies!");
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
@@ -63,9 +64,9 @@ public class CryingHamster extends Hero {
             for (Hero ally : player.getTeam()) {
                 int shield = (int) (ally.getMaxHP() * 0.15);
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.SHIELD, 2, shield, Attribute.SHIELD_AMOUNT));
-                System.out.println(ally.getName() + " gains shield for " + shield + " HP.");
+                BattleLogger.getInstance().log(ally.getName() + " gains shield for " + shield + " HP.");
             }
-            System.out.println(user.getName() + " shields allies!");
+            BattleLogger.getInstance().log(user.getName() + " shields allies!");
         }
 
         @Override
@@ -83,10 +84,10 @@ public class CryingHamster extends Hero {
         public void use(Hero user, Hero target) {
             if (target.isDead()) {
                 target.setCurrentHP((int) (target.getMaxHP() * 0.50));
-                System.out.println(target.getName() + " is revived with 50% HP by Divine Tears!");
+                BattleLogger.getInstance().log(target.getName() + " is revived with 50% HP by Divine Tears!");
             }
             else {
-                System.out.println(target.getName() + " is not dead and cannot be revived");
+                BattleLogger.getInstance().log(target.getName() + " is not dead and cannot be revived");
                 return;
             }
             user.setUltimateBar(0);

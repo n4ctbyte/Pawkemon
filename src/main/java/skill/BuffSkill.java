@@ -3,6 +3,7 @@ import game.Attribute;
 import game.Hero;
 import game.StatusEffect;
 import game.TargetType;
+import game.BattleLogger;
 
 public class BuffSkill extends Skill implements SkillWithTargetType {
     private int buffAmount;
@@ -21,7 +22,7 @@ public class BuffSkill extends Skill implements SkillWithTargetType {
     @Override
     public void use(Hero user, Hero target) {
         target.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, duration, buffAmount, attribute));
-        System.out.println(user.getName() + " buffs " + target.getName() + "'s " + attribute + " by " + buffAmount + " for " + duration + " turns!");
+        BattleLogger.getInstance().log(user.getName() + " buffs " + target.getName() + "'s " + attribute + " by " + buffAmount + " for " + duration + " turns!");
     }
 
     @Override

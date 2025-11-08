@@ -3,6 +3,7 @@ package skill;
 import game.Hero;
 import game.StatusEffect;
 import game.TargetType;
+import game.BattleLogger;
 
 
 public class DotSkill extends Skill implements SkillWithTargetType {
@@ -20,7 +21,7 @@ public class DotSkill extends Skill implements SkillWithTargetType {
     @Override
     public void use(Hero user, Hero target) {
         target.addStatusEffect(new StatusEffect(StatusEffect.Type.DOT, duration, damagePerTurn, null));
-        System.out.println(user.getName() + " applies " + name + " to " + target.getName() + " for " + duration + " turns!");
+        BattleLogger.getInstance().log(user.getName() + " applies " + name + " to " + target.getName() + " for " + duration + " turns!");
     }
 
     @Override

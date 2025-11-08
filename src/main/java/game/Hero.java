@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import skill.Skill;
+import game.BattleLogger;
 
 public class Hero {
     protected String name;
@@ -73,7 +74,7 @@ public class Hero {
                 activeEffects.remove(i);
             }
         }
-        System.out.println(name + "'s debuffs have been cleared.");
+        BattleLogger.getInstance().log(name + "'s debuffs have been cleared.");
     }
 
     private boolean isNegativeEffect(StatusEffect effect) {
@@ -107,7 +108,7 @@ public class Hero {
     public void applyDamage(int damage) {
         if (currentHP > 0) {
             if (tryDodge()) {
-                System.out.println(name + " dodged the attack!");
+                BattleLogger.getInstance().log(name + " dodged the attack!");
                 return;
             }
 
@@ -120,13 +121,13 @@ public class Hero {
                             int absorbed = damage;
                             effect.setValue(shieldValue - damage);
                             damage = 0;
-                            System.out.println(name + "'s shield absorbed " + absorbed + " damage. Remaining shield: " + effect.getValue());
+                            BattleLogger.getInstance().log(name + "'s shield absorbed " + absorbed + " damage. Remaining shield: " + effect.getValue());
                         } else {
                             int absorbed = shieldValue;
                             damage -= shieldValue;
                             effect.setValue(0);
                             activeEffects.remove(i);
-                            System.out.println(name + "'s shield absorbed " + absorbed + " damage and broke!");
+                            BattleLogger.getInstance().log(name + "'s shield absorbed " + absorbed + " damage and broke!");
                         }
                     }
                     break;
@@ -156,7 +157,7 @@ public class Hero {
         int damage = baseAttack;
         if (random.nextInt(100) < critChance) {
             damage = (int) (baseAttack * ((critDamage + 100) / 100.0));
-            System.out.println(name + " landed a critical hit for " + damage + " damage!");
+            BattleLogger.getInstance().log(name + " landed a critical hit for " + damage + " damage!");
         }
         return damage;
     }
@@ -169,6 +170,16 @@ public class Hero {
         currentEnergy = maxEnergy;
         ultimateBar = 0;
         activeEffects.clear();
+        attackBuff = 0;
+        defenseBuff = 0;
+        critChance = 0;
+        critDamage = 0;
+        dodgeChance = 0;
+        hasShield = false;
+        shieldAmount = 0;
+        for (Skill skill : skills) {
+            skill.resetCooldown();
+        }
     }
 
     public void addStatusEffect(StatusEffect effect) { activeEffects.add(effect); }
@@ -194,25 +205,25 @@ public class Hero {
                 case DOT:
                 case POISON:
                     applyDamage(effect.getValue());
-                    System.out.println(name + " takes " + effect.getValue() + " damage from " + effect.getType() + "!");
+                    BattleLogger.getInstance().log(name + " takes " + effect.getValue() + " damage from " + effect.getType() + "!");
                     break;
                 case HEAL_OVER_TIME:
                     heal(effect.getValue());
-                    System.out.println(name + " heals " + effect.getValue() + " HP from Healing Overtime!");
+                    BattleLogger.getInstance().log(name + " heals " + effect.getValue() + " HP from Healing Overtime!");
                     break;
                 case BUFF:
                     if (!effect.isApplied()) {
                         updateAttributeBuffs(effect.getAttribute(), effect.getValue());
                         effect.setApplied(true);
                     }
-                    System.out.println(name + "'s " + effect.getAttribute() + " is buffed by " + effect.getValue() + " for " + effect.getDuration() + " turn(s)!");
+                    BattleLogger.getInstance().log(name + "'s " + effect.getAttribute() + " is buffed by " + effect.getValue() + " for " + effect.getDuration() + " turn(s)!");
                     break;
                 case DEBUFF:
                     if (!effect.isApplied()) {
                         updateAttributeBuffs(effect.getAttribute(), -effect.getValue());
                         effect.setApplied(true);
                     }
-                    System.out.println(name + "'s " + effect.getAttribute() + " is debuffed by " + effect.getValue() + " for " + effect.getDuration() + " turn(s)!");
+                    BattleLogger.getInstance().log(name + "'s " + effect.getAttribute() + " is debuffed by " + effect.getValue() + " for " + effect.getDuration() + " turn(s)!");
                     break;
                 case SHIELD: break;
             }
