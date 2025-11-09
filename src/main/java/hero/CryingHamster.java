@@ -17,7 +17,11 @@ public class CryingHamster extends Hero {
 
     public CryingHamster() {
         super("Crying Hamster", 70, 10, 10, 200);
-        addSkill(new BasicAttack());
+        
+        BasicAttack basic = new BasicAttack();
+        basic.setDescription("Serangan dasar (100% ATK) yang juga menghasilkan 10 poin Ultimate.");
+        addSkill(basic);
+        
         addSkill(new TearsOfCutenessSkill());
         addSkill(new CutenessOverflowSkill());
         addSkill(new DivineTearsSkill());
@@ -26,6 +30,7 @@ public class CryingHamster extends Hero {
     private class TearsOfCutenessSkill extends Skill implements SkillWithTargetType {
         public TearsOfCutenessSkill() {
             super("Tears of Cuteness", 40, 2);
+            this.description = "Menyembuhkan 1 kawan sebesar 30% dari Max HP target.";
         }
 
         @Override
@@ -44,6 +49,7 @@ public class CryingHamster extends Hero {
     public class CutenessOverflowSkill extends Skill implements SkillWithTargetType, AoeSkill {
         public CutenessOverflowSkill() {
             super("Cuteness Overflow", 50, 4);
+            this.description = "Menyerang semua musuh (25% ATK) dan memberikan SHIELD (15% Max HP) ke semua kawan selama 2 giliran.";
         }
 
         @Override
@@ -78,6 +84,7 @@ public class CryingHamster extends Hero {
     private class DivineTearsSkill extends Ultimate {
         public DivineTearsSkill() {
             super("Divine Tears", 0, TargetType.SINGLE_ALLY);
+            this.description = "(ULTIMATE) Menghidupkan kembali (Revive) 1 kawan yang telah mati dengan 50% HP.";
         }
 
         @Override
@@ -85,8 +92,7 @@ public class CryingHamster extends Hero {
             if (target.isDead()) {
                 target.setCurrentHP((int) (target.getMaxHP() * 0.50));
                 BattleLogger.getInstance().log(target.getName() + " is revived with 50% HP by Divine Tears!");
-            }
-            else {
+            } else {
                 BattleLogger.getInstance().log(target.getName() + " is not dead and cannot be revived");
                 return;
             }

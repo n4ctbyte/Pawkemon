@@ -16,7 +16,11 @@ public class SadCat extends Hero {
 
     public SadCat() {
         super("Sad Cat", 75, 10, 10, 200);
-        addSkill(new BasicAttack());
+        
+        BasicAttack basic = new BasicAttack();
+        basic.setDescription("Serangan dasar (100% ATK) yang juga menghasilkan 10 poin Ultimate.");
+        addSkill(basic);
+        
         addSkill(new MelancholyMelodySkill());
         addSkill(new DrainingWhisperSkill());
         addSkill(new CrescendoOfHopeSkill());
@@ -25,6 +29,7 @@ public class SadCat extends Hero {
     public class MelancholyMelodySkill extends Skill implements SkillWithTargetType {
         public MelancholyMelodySkill() {
             super("Melancholy Melody", 40, 3);
+            this.description = "Memberikan BUFF ATK ke semua kawan selama 3 giliran. Kawan dengan HP < 50% mendapat buff 35% ATK, sementara yang lain mendapat 25% ATK.";
         }
 
         @Override
@@ -35,7 +40,7 @@ public class SadCat extends Hero {
                 int buff = (ally.getCurrentHP() < ally.getMaxHP() * 0.5) ? (int) (0.35 * ally.getAttackPower()) : (int) (0.25 * ally.getAttackPower());
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, buff, Attribute.ATTACK));
             }
-            BattleLogger.getInstance().log(user.getName() + " boosts team's attack by 25% (35% if HP < 50%) for 2 turns.");
+            BattleLogger.getInstance().log(user.getName() + " boosts team's attack!");
         }
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
@@ -51,6 +56,7 @@ public class SadCat extends Hero {
     public class DrainingWhisperSkill extends Skill implements SkillWithTargetType {
         public DrainingWhisperSkill() {
             super("Draining Whisper", 50, 4);
+            this.description = "Menyerap 35% Energi dari 1 musuh dan membagikannya secara rata ke semua kawan yang masih hidup. Musuh yang diserang juga terkena DEBUFF ATK (-15%) selama 3 giliran.";
         }
 
         @Override
@@ -90,13 +96,14 @@ public class SadCat extends Hero {
     public class CrescendoOfHopeSkill extends Ultimate {
         public CrescendoOfHopeSkill() {
             super("Crescendo of Hope", 0, TargetType.ALL_ALLIES);
+            this.description = "(ULTIMATE) Memberikan BUFF ATK & DEF (+20) selama 3 giliran, memulihkan 15% Max Energy, dan menghapus semua DEBUFF (Cleanses) dari semua kawan.";
         }
 
         @Override
         public void use(Hero user, Hero target) {}
 
         public void useAOE(Hero user, List<Hero> targets, Player player) {
-            for (Hero ally : player.getTeam()) {
+            for (Hero ally : targets) { 
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, 20, Attribute.ATTACK));
                 ally.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 3, 20, Attribute.DEFENSE));
                 int energyRestore = (int) (ally.getMaxEnergy() * 0.15);

@@ -6,6 +6,7 @@ skill\DebuffSkill.class
 hero\GregTheCrocodile$WarningBiteSkill.class
 ui\DevelopersController.class
 ui\SplashScreenController.class
+ui\MusicManager.class
 ui\BattleSceneController.class
 ui\HeroCardController.class
 skill\AoeSkill.class
@@ -27,6 +28,7 @@ hero\CryingHamster.class
 hero\SadCat$DrainingWhisperSkill.class
 skill\BuffSkill.class
 hero\GregTheCrocodile$DeathRollSkill.class
+ui\PokedexController.class
 ui\SelectionSceneController.class
 hero\BananaCat.class
 hero\KucingCukurukuk$StoicStanceSkill.class

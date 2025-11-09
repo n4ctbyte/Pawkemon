@@ -5,6 +5,10 @@ import game.Hero;
 import game.Player;
 import game.TargetType;
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -63,28 +67,51 @@ public class BattleSceneController implements BattleLogger.LogListener {
     public void initialize() {
         for (Hero hero : playerTeamList) hero.reset();
         for (Hero hero : enemyTeamList) hero.reset();
-
         player1 = new Player("Player 1");
         playerTeamList.forEach(player1::addHero);
         player2 = new Player("Player 2");
         enemyTeamList.forEach(player2::addHero);
         currentPlayer = player1;
-
         BattleLogger.getInstance().setListener(this);
         battleLogArea.setEditable(false);
         battleLogArea.setWrapText(true);
         battleLogArea.setText("");
         gameOverPane.setVisible(false);
         gameOverPane.setOpacity(0.0);
-
         loadHeroCards(player1, team1VBox, player1Cards);
         loadHeroCards(player2, team2VBox, player2Cards);
-
-        log("Giliran Player 1. Pilih hero yang akan beraksi.");
-        updateAllHeroCards();
-        resetAllAnimationsToIdle();
+        currentState = GameState.BUSY;
+        team1VBox.setTranslateX(-400);
+        team2VBox.setTranslateX(400);
+        team1VBox.setOpacity(0);
+        team2VBox.setOpacity(0);
+        controlPanel.setOpacity(0);
         skillGrid.setDisable(true);
         backButton.setVisible(false);
+        updateAllHeroCards();
+        resetAllAnimationsToIdle();
+        Platform.runLater(this::playIntroAnimation);
+    }
+
+    private void playIntroAnimation() {
+        TranslateTransition tt1 = new TranslateTransition(Duration.millis(800), team1VBox);
+        tt1.setToX(0);
+        TranslateTransition tt2 = new TranslateTransition(Duration.millis(800), team2VBox);
+        tt2.setToX(0);
+        FadeTransition ft1 = new FadeTransition(Duration.millis(500), team1VBox);
+        ft1.setToValue(1.0);
+        FadeTransition ft2 = new FadeTransition(Duration.millis(500), team2VBox);
+        ft2.setToValue(1.0);
+        FadeTransition ft3 = new FadeTransition(Duration.millis(500), controlPanel);
+        ft3.setToValue(1.0);
+        ParallelTransition slideInTeams = new ParallelTransition(tt1, tt2, ft1, ft2);
+        PauseTransition pt1 = new PauseTransition(Duration.millis(500));
+        SequentialTransition introSequence = new SequentialTransition(slideInTeams, pt1, ft3);
+        introSequence.setOnFinished(e -> {
+            log("Giliran Player 1. Pilih hero yang akan beraksi.");
+            currentState = GameState.SELECTING_HERO;
+        });
+        introSequence.play();
     }
 
     private void loadHeroCards(Player player, VBox teamVBox, List<HeroCardController> cardList) {
@@ -103,6 +130,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
 
     @FXML
     private void onBackButtonClicked() {
+        MusicManager.getInstance().playClickSound();
         if (currentState == GameState.SELECTING_SKILL) {
             currentState = GameState.SELECTING_HERO;
             log("Pilih hero yang akan beraksi.");
@@ -121,6 +149,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
     }
 
     private void onHeroCardClicked(HeroCardController clickedCard) {
+        MusicManager.getInstance().playClickSound();
         Hero clickedHero = clickedCard.getHero();
         List<HeroCardController> currentPlayerCards = (currentPlayer == player1) ? player1Cards : player2Cards;
         List<HeroCardController> opponentPlayerCards = (currentPlayer == player1) ? player2Cards : player1Cards;
@@ -169,12 +198,15 @@ public class BattleSceneController implements BattleLogger.LogListener {
     }
 
     private void onSkillButtonClicked(Skill skill) {
+        MusicManager.getInstance().playClickSound();
         if (currentState != GameState.SELECTING_SKILL) return;
         this.selectedSkill = skill;
         TargetType targetType = getSkillTargetType(skill);
         if (targetType == TargetType.SELF) executeTurn(selectedHero, selectedHero);
         else if (targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES) {
-            Hero dummyTarget = (targetType == TargetType.ALL_ALLIES) ? currentPlayer.getAliveHeroes().get(0) : ((currentPlayer == player1) ? player2 : player1).getAliveHeroes().get(0);
+            Hero dummyTarget = (targetType == TargetType.ALL_ALLIES)
+                ? currentPlayer.getAliveHeroes().get(0)
+                : ((currentPlayer == player1) ? player2 : player1).getAliveHeroes().get(0);
             executeTurn(selectedHero, dummyTarget);
         } else {
             currentState = GameState.SELECTING_TARGET;
@@ -190,6 +222,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
         clearAllHighlights();
         battleLogArea.setText("");
         log(user.getName() + " menggunakan " + selectedSkill.getName() + "!");
+        HeroCardController userCard = getCardForHero(user);
+        if (userCard != null) userCard.showAnimation(selectedSkill.getName());
         Player opponentPlayer = (currentPlayer == player1) ? player2 : player1;
         TargetType targetType = getSkillTargetType(selectedSkill);
         List<Hero> targets = new ArrayList<>();
@@ -200,17 +234,16 @@ public class BattleSceneController implements BattleLogger.LogListener {
             case ALL_ALLIES: targets.addAll(currentPlayer.getAliveHeroes()); break;
             case ALL_ENEMIES: targets.addAll(opponentPlayer.getAliveHeroes()); break;
         }
-        if ((targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES)) {
+        if (targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES) {
             try {
                 java.lang.reflect.Method method = selectedSkill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
                 method.invoke(selectedSkill, user, targets, currentPlayer);
             } catch (Exception e) {
                 try {
-                    if (selectedSkill instanceof skill.AoeSkill) {
+                    if (selectedSkill instanceof skill.AoeSkill)
                         ((skill.AoeSkill) selectedSkill).useAOE(user, targets);
-                    } else {
-                        for(Hero t : targets) selectedSkill.use(user, t);
-                    }
+                    else
+                        for (Hero t : targets) selectedSkill.use(user, t);
                 } catch (Exception ex) { System.err.println("Gagal panggil useAOE: " + ex.getMessage()); }
             }
         } else {
@@ -259,13 +292,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
         currentState = GameState.SELECTING_HERO;
         List<Hero> aliveHeroes = currentPlayer.getAliveHeroes();
         if (aliveHeroes.isEmpty()) return;
-        boolean allStunned = true;
-        for (Hero h : aliveHeroes) {
-            if (!h.isStunned()) {
-                allStunned = false;
-                break;
-            }
-        }
+        boolean allStunned = aliveHeroes.stream().allMatch(Hero::isStunned);
         if (allStunned) {
             log(currentPlayer.getName() + " tidak bisa bergerak! (Semua hero stun)");
             BattleLogger.getInstance().log("--- Giliran " + currentPlayer.getName() + " dilewati (Stun) ---");
@@ -315,18 +342,17 @@ public class BattleSceneController implements BattleLogger.LogListener {
 
     @FXML
     private void onRematchClicked() throws IOException {
+        MusicManager.getInstance().playClickSound();
         Parent battleRoot = FXMLLoader.load(getClass().getResource("battle.fxml"));
-        Stage stage = (Stage) rootStackPane.getScene().getWindow();
-        stage.setScene(new Scene(battleRoot));
-        stage.setFullScreen(true);
+        rootStackPane.getScene().setRoot(battleRoot);
     }
 
     @FXML
     private void onExitToMenuClicked() throws IOException {
+        MusicManager.getInstance().playClickSound();
+        MusicManager.getInstance().stopBattleMusic();
         Parent menuRoot = FXMLLoader.load(getClass().getResource("main_menu.fxml"));
-        Stage stage = (Stage) rootStackPane.getScene().getWindow();
-        stage.setScene(new Scene(menuRoot));
-        stage.setFullScreen(true);
+        rootStackPane.getScene().setRoot(menuRoot);
     }
 
     private void populateSkillGrid(Hero hero) {
@@ -347,8 +373,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
                         if (currentPlayer.getDeadHeros().isEmpty()) {
                             isSkillReady = false;
                             reason = "(Tidak ada kawan mati)";
-                        } else { isSkillReady = true; }
-                    } else { isSkillReady = true; }
+                        } else isSkillReady = true;
+                    } else isSkillReady = true;
                 } else {
                     isSkillReady = false;
                     reason = "(Ulti: " + hero.getUltimateBar() + "%)";
@@ -357,9 +383,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
                 skillButton.setText(skill.getName() + "\n(Cost: " + skill.getEnergyCost() + ")");
                 boolean isReady = skill.isReady();
                 boolean hasEnergy = hero.getCurrentEnergy() >= skill.getEnergyCost();
-                if (isReady && hasEnergy) {
-                    isSkillReady = true;
-                } else {
+                if (isReady && hasEnergy) isSkillReady = true;
+                else {
                     isSkillReady = false;
                     reason = !isReady ? " (CD: " + skill.getCurrentCooldown() + ")" : " (No Energy)";
                 }
@@ -389,8 +414,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
     }
 
     private void resetAllAnimationsToIdle() {
-        for (HeroCardController card : player1Cards) card.showAnimation("idle");
-        for (HeroCardController card : player2Cards) card.showAnimation("idle");
+        for (HeroCardController card : player1Cards) card.showAnimation("idle_left");
+        for (HeroCardController card : player2Cards) card.showAnimation("idle_right");
     }
 
     private void highlightHero(Hero hero, String color) {

@@ -13,16 +13,20 @@
            xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="ui.CreditsController">
    <children>
+   
       <VBox alignment="CENTER" spacing="25.0" maxWidth="800.0" 
             style="-fx-background-color: rgba(44, 62, 80, 0.85); -fx-background-radius: 15; -fx-padding: 30;">
          <children>
+         
             <Label text="Asset Credits" textFill="WHITE">
                <font>
                   <Font name="Pokemon Solid" size="80.0" />
                </font>
             </Label>
+            
             <VBox alignment="CENTER_LEFT" spacing="15.0" maxWidth="700.0">
                <children>
+               
                   <VBox spacing="2.0">
                      <children>
                         <Label text="Battleground Background" textFill="#e67e22" style="-fx-font-weight: bold; -fx-font-size: 18px;" />
@@ -30,6 +34,7 @@
                         <Label text="https://souffle-bleu.com/wp-content/uploads/2025/04/Stadium_Background.png" textFill="#bdc3c7" style="-fx-font-size: 12px;" />
                      </children>
                   </VBox>
+                  
                   <VBox spacing="2.0">
                      <children>
                         <Label text="Main Menu Background" textFill="#e67e22" style="-fx-font-weight: bold; -fx-font-size: 18px;" />
@@ -37,10 +42,40 @@
                         <Label text="https://external-preview.redd.it/Ga24Es10Ast8ng42qrU-odZUfHMR6d8Ceofmbwy5rWw.jpg" textFill="#bdc3c7" style="-fx-font-size: 12px;" />
                      </children>
                   </VBox>
+                  
+                  <VBox spacing="2.0">
+                     <children>
+                        <Label text="Splash Screen Typing Sound" textFill="#e67e22" style="-fx-font-weight: bold; -fx-font-size: 18px;" />
+                        <Label text="Typing Sound Effect (no copyright)" textFill="WHITE" style="-fx-font-size: 16px;" />
+                        <Label text="by Mark Vincent Flores" textFill="WHITE" style="-fx-font-size: 16px;" />
+                        <Label text="https://youtu.be/OJhWtBBJw10?si=BNFDcnmG1OVWpOz2" textFill="#bdc3c7" style="-fx-font-size: 12px;" />
+                     </children>
+                  </VBox>
+                  
+                  <VBox spacing="2.0">
+                     <children>
+                        <Label text="Main Menu Music" textFill="#e67e22" style="-fx-font-weight: bold; -fx-font-size: 18px;" />
+                        <Label text="Pokemon Ruby/Sapphire/Emerald - Littleroot Town" textFill="WHITE" style="-fx-font-size: 16px;" />
+                        <Label text="by pokemonmusicmaster" textFill="WHITE" style="-fx-font-size: 16px;" />
+                        <Label text="https://youtu.be/im6tbN9SZXs?si=FJWtBpmyS8LeHole" textFill="#bdc3c7" style="-fx-font-size: 12px;" />
+                     </children>
+                  </VBox>
+                  
+                  <VBox spacing="2.0">
+                     <children>
+                        <Label text="Battle Music" textFill="#e67e22" style="-fx-font-weight: bold; -fx-font-size: 18px;" />
+                        <Label text="Pokemon Battle Music - Anime Version" textFill="WHITE" style="-fx-font-size: 16px;" />
+                        <Label text="by Princess Viola" textFill="WHITE" style="-fx-font-size: 16px;" />
+                        <Label text="https://youtu.be/3pPR6IOV7Rg?si=mgtIuftheT2dHHsf" textFill="#bdc3c7" style="-fx-font-size: 12px;" />
+                     </children>
+                  </VBox>
+                  
                </children>
             </VBox>
+            
          </children>
       </VBox>
+      
       <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackClicked" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 14px;" text="Back to Menu" StackPane.alignment="TOP_LEFT">
          <StackPane.margin>
             <Insets left="20.0" top="20.0" />

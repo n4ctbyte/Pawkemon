@@ -8,11 +8,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import game.BattleLogger;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
+import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,13 +43,13 @@ public class SelectionSceneController {
     private List<Hero> player1Team = new ArrayList<>();
     private List<Hero> player2Team = new ArrayList<>();
     
-    private boolean isPlayer1Turn = true; 
+    private boolean isPlayer1Turn = true;
     private Label turnLabel;
 
     public void initialize() {
         turnLabel = new Label("Giliran Player 1 Memilih");
         turnLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox rootVBox = (VBox) pokemonGrid.getParent(); 
+        VBox rootVBox = (VBox) pokemonGrid.getParent();
         rootVBox.getChildren().add(1, turnLabel);
         populateHeroGrid();
     }
@@ -65,16 +70,37 @@ public class SelectionSceneController {
 
     private VBox createHeroCard(Hero hero) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-border-color: white; -fx-padding: 10; -fx-border-width: 1; -fx-alignment: center;");
+        card.setStyle("-fx-border-color: white; -fx-padding: 10; -fx-border-width: 1; -fx-alignment: center; " +
+                      "-fx-background-color: rgba(0, 0, 0, 0.4); -fx-background-radius: 10; -fx-border-radius: 10;");
+
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(100);
+        imageView.setFitWidth(100);
+        imageView.setPreserveRatio(true);
+
+        String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
+        String idlePath = String.format("/images/%s/idle_right.gif", heroFolder);
+        
+        try {
+            Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
+            imageView.setImage(idleGif);
+        } catch (Exception e) {
+            System.err.println("Gagal load GIF idle untuk " + hero.getName() + " di path: " + idlePath);
+        }
+
         Label nameLabel = new Label(hero.getName());
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+
         Button selectButton = new Button("Pilih");
         selectButton.setOnAction(e -> onSelectHero(hero, selectButton));
-        card.getChildren().addAll(nameLabel, selectButton);
+
+        card.getChildren().addAll(imageView, nameLabel, selectButton); 
         return card;
     }
 
     private void onSelectHero(Hero hero, Button clickedButton) {
+        MusicManager.getInstance().playClickSound();
+    
         HBox targetBox;
         List<Hero> targetTeam;
 
@@ -103,7 +129,17 @@ public class SelectionSceneController {
             return;
         }
         
-        targetTeam.add(hero.clone()); 
+        VBox card = (VBox) clickedButton.getParent();
+        ScaleTransition st = new ScaleTransition(Duration.millis(100), card);
+        st.setFromX(1.0);
+        st.setFromY(1.0);
+        st.setToX(1.1);
+        st.setToY(1.1);
+        st.setCycleCount(2);
+        st.setAutoReverse(true);
+        st.play();
+        
+        targetTeam.add(hero.clone());
         
         Label teamMemberLabel = new Label(hero.getName());
         teamMemberLabel.setStyle("-fx-text-fill: white; -fx-padding: 5; -fx-background-color: #555;");
@@ -126,18 +162,17 @@ public class SelectionSceneController {
 
     @FXML
     private void startBattle() throws IOException {
+        MusicManager.getInstance().playClickSound();
         BattleSceneController.setTeams(player1Team, player2Team);
-        Stage stage = (Stage) startButton.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("battle.fxml"));
-        stage.setScene(new Scene(root));
-        stage.setFullScreen(true);
+        startButton.getScene().setRoot(root);
     }
-
+ 
     @FXML
     private void onBackClicked() throws IOException {
-        Parent menuRoot = FXMLLoader.load(getClass().getResource("main_menu.fxml"));
-        Stage stage = (Stage) backButton.getScene().getWindow();
-        stage.setScene(new Scene(menuRoot));
-        stage.setFullScreen(true); 
+        MusicManager.getInstance().playClickSound();
+        MusicManager.getInstance().stopBattleMusic();
+        Parent root = FXMLLoader.load(getClass().getResource("main_menu.fxml"));
+        backButton.getScene().setRoot(root);
     }
 }

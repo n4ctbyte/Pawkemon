@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
+import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 
 public class MainMenuController {
@@ -16,18 +16,45 @@ public class MainMenuController {
     @FXML private Button battleButton;
     @FXML private Button devsButton;
     @FXML private Button creditsButton;
+    @FXML private Button pokedexButton;
 
     @FXML
     public void initialize() {
+        MusicManager.getInstance().playMenuMusic();
+    }
+
+    @FXML
+    private void onButtonHover(MouseEvent event) {
+        Button hoveredButton = (Button) event.getSource();
+        hoveredButton.setScaleX(1.05);
+        hoveredButton.setScaleY(1.05);
+    }
+
+    @FXML
+    private void onButtonExit(MouseEvent event) {
+        Button exitedButton = (Button) event.getSource();
+        exitedButton.setScaleX(1.0);
+        exitedButton.setScaleY(1.0);
     }
 
     @FXML
     private void onBattleClicked() {
         try {
-            Parent selectionRoot = FXMLLoader.load(getClass().getResource("selection.fxml"));
-            Stage stage = (Stage) rootPane.getScene().getWindow();
-            stage.setScene(new Scene(selectionRoot));
-            stage.setFullScreen(true);
+            MusicManager.getInstance().playClickSound();
+            MusicManager.getInstance().playBattleMusic();
+            Parent root = FXMLLoader.load(getClass().getResource("selection.fxml"));
+            rootPane.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onPokedexClicked() {
+        try {
+            MusicManager.getInstance().playClickSound();
+            Parent root = FXMLLoader.load(getClass().getResource("pokedex.fxml"));
+            rootPane.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -36,10 +63,9 @@ public class MainMenuController {
     @FXML
     private void onMeetDevsClicked() {
         try {
-            Parent devsRoot = FXMLLoader.load(getClass().getResource("developers.fxml"));
-            Stage stage = (Stage) rootPane.getScene().getWindow();
-            stage.setScene(new Scene(devsRoot));
-            stage.setFullScreen(true);
+            MusicManager.getInstance().playClickSound();
+            Parent root = FXMLLoader.load(getClass().getResource("developers.fxml"));
+            rootPane.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,10 +74,9 @@ public class MainMenuController {
     @FXML
     private void onCreditsClicked() {
         try {
-            Parent creditsRoot = FXMLLoader.load(getClass().getResource("credits.fxml"));
-            Stage stage = (Stage) rootPane.getScene().getWindow();
-            stage.setScene(new Scene(creditsRoot));
-            stage.setFullScreen(true);
+            MusicManager.getInstance().playClickSound();
+            Parent root = FXMLLoader.load(getClass().getResource("credits.fxml"));
+            rootPane.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -8,6 +8,7 @@ public abstract class Skill {
     protected int cooldown;
     private int currentCooldown;
     protected boolean isAvailable;
+    protected String description;
 
     public Skill(String name, int energyCost, int cooldown) {
         this.name = name;
@@ -15,6 +16,7 @@ public abstract class Skill {
         this.cooldown = cooldown;
         this.currentCooldown = 0;
         this.isAvailable = true;
+        this.description = "Deskripsi skill belum ditambahkan.";
     }
 
     public int getCurrentCooldown() { return currentCooldown; }
@@ -45,4 +47,12 @@ public abstract class Skill {
     public boolean isReady() { return isAvailable && currentCooldown == 0; }
     public int getEnergyCost() { return energyCost; }
     public String getName() { return name; }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

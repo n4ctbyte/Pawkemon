@@ -17,7 +17,11 @@ public class GregTheCrocodile extends Hero {
 
     public GregTheCrocodile() {
         super("Greg The Crocodile", 130, 10, 20, 100);
-        addSkill(new BasicAttack());
+        
+        BasicAttack basic = new BasicAttack();
+        basic.setDescription("Serangan dasar (100% ATK) yang juga menghasilkan 10 poin Ultimate.");
+        addSkill(basic);
+        
         addSkill(new ThickMudSkill());
         addSkill(new WarningBiteSkill());
         addSkill(new DeathRollSkill());
@@ -26,6 +30,7 @@ public class GregTheCrocodile extends Hero {
     private class ThickMudSkill extends Skill implements SkillWithTargetType {
         public ThickMudSkill() {
             super("Thick Mud", 30, 3);
+            this.description = "Menyerang 1 musuh (damage berdasarkan 3% Max HP target + ATK Greg). Memberi BUFF DEF (+10%) pada diri sendiri selama 2 giliran.";
         }
 
         @Override
@@ -46,6 +51,7 @@ public class GregTheCrocodile extends Hero {
     private class WarningBiteSkill extends Skill implements SkillWithTargetType {
         public WarningBiteSkill() {
             super("Warning Bite", 30, 3);
+            this.description = "Menyerang 1 musuh dan memberikan STUN selama 1 giliran.";
         }
 
         @Override
@@ -63,6 +69,7 @@ public class GregTheCrocodile extends Hero {
     public class DeathRollSkill extends Ultimate {
         public DeathRollSkill() {
             super("Death Roll", 0, TargetType.ALL_ENEMIES);
+            this.description = "(ULTIMATE) Menyerang semua musuh, memberi DEBUFF ATK & DEF (-15) selama 2 giliran. Sekaligus memberi SHIELD (10% Max HP Greg) ke semua kawan selama 2 giliran.";
         }
 
         @Override

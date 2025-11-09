@@ -7,14 +7,13 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="1000.0"
-           style="-fx-background-image: url('/images/menu.png'); -fx-background-size: cover; -fx-background-position: center;"
-           xmlns="http://javafx.com/javafx/21"
-           xmlns:fx="http://javafx.com/fxml/1"
+<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="1000.0" 
+           style="-fx-background-image: url('/images/menu.png'); -fx-background-size: cover; -fx-background-position: center;" 
+           xmlns="http://javafx.com/javafx/21" 
+           xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="ui.MainMenuController">
    <children>
-      <VBox alignment="CENTER" spacing="30.0">
-         <children>
+      <VBox alignment="CENTER" spacing="25.0"> <children>
             <Label text="Pawkemon" textFill="WHITE">
                <font>
                   <Font name="Pokemon Solid" size="100.0" />
@@ -23,18 +22,22 @@
                   <Insets bottom="20.0" />
                </padding>
             </Label>
-            <Button fx:id="battleButton" mnemonicParsing="false" onAction="#onBattleClicked"
-                    prefHeight="60.0" prefWidth="250.0"
-                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;"
-                    text="Battle" />
-            <Button fx:id="devsButton" mnemonicParsing="false" onAction="#onMeetDevsClicked"
-                    prefHeight="60.0" prefWidth="250.0"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;"
-                    text="Meet Ur Devs" />
-            <Button fx:id="creditsButton" mnemonicParsing="false" onAction="#onCreditsClicked"
-                    prefHeight="60.0" prefWidth="250.0"
-                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;"
-                    text="Credits" />
+            
+            <Button fx:id="battleButton" mnemonicParsing="false" onAction="#onBattleClicked" 
+                    onMouseEntered="#onButtonHover" onMouseExited="#onButtonExit" 
+                    prefHeight="60.0" prefWidth="250.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;" text="Battle" />
+            
+            <Button fx:id="pokedexButton" mnemonicParsing="false" onAction="#onPokedexClicked" 
+                    onMouseEntered="#onButtonHover" onMouseExited="#onButtonExit"
+                    prefHeight="60.0" prefWidth="250.0" style="-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;" text="Pawkemon" />
+
+            <Button fx:id="devsButton" mnemonicParsing="false" onAction="#onMeetDevsClicked" 
+                    onMouseEntered="#onButtonHover" onMouseExited="#onButtonExit"
+                    prefHeight="60.0" prefWidth="250.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;" text="Meet Ur Devs" />
+            
+            <Button fx:id="creditsButton" mnemonicParsing="false" onAction="#onCreditsClicked" 
+                    onMouseEntered="#onButtonHover" onMouseExited="#onButtonExit"
+                    prefHeight="60.0" prefWidth="250.0" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 10;" text="Credits" />
          </children>
       </VBox>
    </children>

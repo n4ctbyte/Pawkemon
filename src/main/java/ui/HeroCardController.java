@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 
 public class HeroCardController {
 
-    @FXML private VBox rootBox; 
+    @FXML private VBox rootBox;
     @FXML private Label heroNameLabel;
     @FXML private ImageView heroImageView;
     @FXML private HBox statusBox;
@@ -49,11 +49,10 @@ public class HeroCardController {
                 default: text = effect.getType().toString() + " (" + effect.getDuration() + "t)"; style += "#95a5a6;";
             }
             Label effectLabel = new Label(text);
-            effectLabel.setStyle(style); 
+            effectLabel.setStyle(style);
             effectLabel.setTextFill(Color.WHITE);
             statusBox.getChildren().add(effectLabel);
         }
-
         if (hero.isDead()) {
             heroNameLabel.setText(hero.getName() + " (DEAD)");
             hpBar.setProgress(0);
@@ -85,26 +84,23 @@ public class HeroCardController {
 
     public void showAnimation(String animationName) {
         if (this.hero == null) return;
-
         if (hero.isDead()) {
             heroImageView.setImage(null);
             return;
         }
-
-        String heroNameBase = hero.getName().toLowerCase().replace(" ", "_");
+        String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
         String animNameBase = animationName.toLowerCase().replace(" ", "_");
-        String path = String.format("/images/%s_%s.gif", heroNameBase, animNameBase);
-
+        String defaultIdlePath = String.format("/images/%s/idle_right.gif", heroFolder);
+        String path = String.format("/images/%s/%s.gif", heroFolder, animNameBase);
         try {
             Image newGif = new Image(getClass().getResourceAsStream(path));
             heroImageView.setImage(newGif);
         } catch (Exception e) {
-            String idlePath = String.format("/images/%s_idle.gif", heroNameBase);
             try {
-                Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
+                Image idleGif = new Image(getClass().getResourceAsStream(defaultIdlePath));
                 heroImageView.setImage(idleGif);
             } catch (Exception e2) {
-                System.err.println("Gagal total load GIF: " + path + " ATAU " + idlePath);
+                System.err.println("Gagal total load GIF: " + path + " ATAU " + defaultIdlePath);
                 heroImageView.setImage(null);
             }
         }

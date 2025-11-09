@@ -18,7 +18,11 @@ public class KucingAkmal extends Hero {
 
     public KucingAkmal() {
         super("Kucing Akmal", 100, 1000, 0, 100);
-        addSkill(new BasicAttack());
+        
+        BasicAttack basic = new BasicAttack();
+        basic.setDescription("Serangan dasar (100% ATK) yang juga menghasilkan 10 poin Ultimate.");
+        addSkill(basic);
+        
         addSkill(new WhiskerVortexSkill());
         addSkill(new RotailStrikeSkill());
         addSkill(new AkmalCycloneSkill());
@@ -27,6 +31,7 @@ public class KucingAkmal extends Hero {
     private class WhiskerVortexSkill extends Skill implements SkillWithTargetType {
         public WhiskerVortexSkill() {
             super("Whisker Vortex", 40, 3);
+            this.description = "Menghapus semua debuff dari diri sendiri dan meningkatkan ATK sebesar 10% (dari ATK dasar) selama 3 giliran.";
         }
 
         @Override
@@ -47,6 +52,7 @@ public class KucingAkmal extends Hero {
     private class RotailStrikeSkill extends Skill implements SkillWithTargetType {
         public RotailStrikeSkill() {
             super("Rotail Strike", 30, 2);
+            this.description = "Menyerang 1 musuh (120% ATK). Memiliki 90% peluang untuk memberi STUN (1 giliran) dan DOT (10 dmg/giliran) selama 5 giliran.";
         }
 
         @Override
@@ -73,6 +79,7 @@ public class KucingAkmal extends Hero {
     public class AkmalCycloneSkill extends Ultimate {
         public AkmalCycloneSkill() {
             super("Akmal Cyclone", 0, TargetType.ALL_ENEMIES);
+            this.description = "(ULTIMATE) Menyerang semua musuh (240% ATK) dan memberi DOT (10 dmg/giliran) pada mereka semua selama 3 giliran.";
         }
 
         @Override

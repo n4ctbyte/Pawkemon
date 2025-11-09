@@ -15,7 +15,11 @@ import game.BattleLogger;
 public class BananaCat extends Hero {
     public BananaCat() {
         super("Banana Cat", 120, 10, 20, 100);
-        addSkill(new BasicAttack());
+        
+        BasicAttack basic = new BasicAttack();
+        basic.setDescription("Serangan dasar (100% ATK) yang juga menghasilkan 10 poin Ultimate.");
+        addSkill(basic);
+        
         addSkill(new BananaBopSkill());
         addSkill(new BananaGuardSkill());
         addSkill(new BananaHeartRoarSkill());
@@ -24,6 +28,7 @@ public class BananaCat extends Hero {
     private class BananaBopSkill extends Skill implements SkillWithTargetType {
         public BananaBopSkill() {
             super("Banana Bop", 30, 3);
+            this.description = "Men-STUN 1 musuh selama 2 giliran. Jika Banana Cat memiliki SHIELD, durasi STUN diperpanjang menjadi 3 giliran.";
         }
 
         @Override
@@ -50,6 +55,7 @@ public class BananaCat extends Hero {
     private class BananaGuardSkill extends Skill implements SkillWithTargetType {
         public BananaGuardSkill() {
             super("Banana Guard", 40, 3);
+            this.description = "Memberikan SHIELD pada diri sendiri sebesar 20% dari Max HP. SHIELD bertahan selama 4 giliran atau sampai hancur.";
         }
 
         @Override
@@ -68,6 +74,7 @@ public class BananaCat extends Hero {
     public class BananaHeartRoarSkill extends Ultimate {
         public BananaHeartRoarSkill() {
             super("Banana Heart Roar", 0, TargetType.ALL_ENEMIES);
+            this.description = "(ULTIMATE) Memaksa semua musuh menyerang Banana Cat (TAUNT) selama 2 giliran. Sekaligus memberikan SHIELD (10% Max HP) ke semua kawan selama 2 giliran.";
         }
 
         @Override
