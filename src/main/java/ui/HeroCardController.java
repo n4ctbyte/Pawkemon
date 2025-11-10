@@ -9,12 +9,16 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class HeroCardController {
 
+    @FXML private StackPane shieldPane;
+    @FXML private ProgressBar shieldBar;
+    @FXML private Label shieldLabel;
     @FXML private VBox rootBox;
     @FXML private Label heroNameLabel;
     @FXML private ImageView heroImageView;
@@ -31,36 +35,78 @@ public class HeroCardController {
     @FXML private Label critDmgLabel;
 
     private Hero hero;
-    private String currentIdleBase = "idle";
-    private String currentDirectionSuffix = "_right";
+    private boolean isMirrored = false;
     private String currentPersistentAnimationBase = "idle";
     private PauseTransition oneShotTimer;
+    private double maxShieldValue = 1;
 
     public void updateData(Hero hero) {
         this.hero = hero;
-
+        int shieldAmount = 0;
+        boolean justGotShielded = false;
         statusBox.getChildren().clear();
         for (StatusEffect effect : hero.getActiveEffects()) {
             String text = "";
             String style = "-fx-padding: 2 4 2 4; -fx-background-radius: 3; -fx-background-color: ";
             style += "-fx-font-size: 9px; -fx-font-weight: bold; ";
             switch (effect.getType()) {
-                case SHIELD: text = "SHIELD (" + effect.getValue() + ")"; style += "#3498db;"; break;
-                case BUFF: text = "BUFF" + (effect.getAttribute() != null ? ":" + effect.getAttribute().toString().substring(0,3) : "") + " (" + effect.getDuration() + "t)"; style += "#2ecc71;"; break;
-                case DEBUFF: text = "DEBUFF" + (effect.getAttribute() != null ? ":" + effect.getAttribute().toString().substring(0,3) : "") + " (" + effect.getDuration() + "t)"; style += "#e74c3c;"; break;
-                case STUN: text = "STUN (" + effect.getDuration() + "t)"; style += "#f1c40f;"; break;
-                case TAUNT: text = "TAUNT (" + effect.getDuration() + "t)"; style += "#9b59b6;"; break;
-                case DOT:
-                case POISON: text = effect.getType().toString() + " (" + effect.getDuration() + "t)"; style += "#e74c3c;"; break;
-                case HEAL_OVER_TIME: text = "HOT (" + effect.getDuration() + "t)"; style += "#2ecc71;"; break;
-                default: text = effect.getType().toString() + " (" + effect.getDuration() + "t)"; style += "#95a5a6;";
+                case SHIELD:
+                    shieldAmount += effect.getValue();
+                    text = "SHIELD (" + effect.getValue() + ")";
+                    style += "#3498db;";
+                    if (effect.getDuration() == 4 || effect.getDuration() == 2) {
+                        maxShieldValue = Math.max(maxShieldValue, effect.getValue());
+                        justGotShielded = true;
+                    }
+                    break;
+                case BUFF:
+                    String attrStrB = "";
+                    if (effect.getAttribute() != null) {
+                        switch (effect.getAttribute()) {
+                            case ATTACK: attrStrB = "ATK"; break;
+                            case DEFENSE: attrStrB = "DEF"; break;
+                            case CRIT_CHANCE: attrStrB = "CR"; break;
+                            case CRIT_DAMAGE: attrStrB = "CD"; break;
+                            case DODGE_CHANCE: attrStrB = "DODGE"; break;
+                            default: attrStrB = "";
+                        }
+                    }
+                    text = String.format("BUFF %s(%d, %d)", attrStrB, effect.getValue(), effect.getDuration());
+                    style += "#2ecc71;";
+                    break;
+                case DEBUFF:
+                    String attrStrD = "";
+                    if (effect.getAttribute() != null) {
+                        switch (effect.getAttribute()) {
+                            case ATTACK: attrStrD = "ATK"; break;
+                            case DEFENSE: attrStrD = "DEF"; break;
+                            default: attrStrD = "";
+                        }
+                    }
+                    text = String.format("DEB %s(%d, %d)", attrStrD, effect.getValue(), effect.getDuration());
+                    style += "#e74c3c;";
+                    break;
+                case STUN: text = String.format("STUN(%d)", effect.getDuration()); style += "#f1c40f;"; break;
+                case TAUNT: text = String.format("TAUNT(%d)", effect.getDuration()); style += "#9b59b6;"; break;
+                case DOT: text = String.format("DOT(%d, %d)", effect.getValue(), effect.getDuration()); style += "#e74c3c;"; break;
+                case POISON: text = String.format("POISON(%d, %d)", effect.getValue(), effect.getDuration()); style += "#e74c3c;"; break;
+                case HEAL_OVER_TIME: text = String.format("HOT(%d, %d)", effect.getValue(), effect.getDuration()); style += "#2ecc71;"; break;
+                default: text = effect.getType().toString() + "(" + effect.getDuration() + ")"; style += "#95a5a6;";
             }
             Label effectLabel = new Label(text);
             effectLabel.setStyle(style);
             effectLabel.setTextFill(Color.WHITE);
             statusBox.getChildren().add(effectLabel);
         }
-
+        if (shieldAmount > 0) {
+            shieldPane.setVisible(true);
+            if (justGotShielded) { maxShieldValue = Math.max(maxShieldValue, shieldAmount); }
+            shieldBar.setProgress((double) shieldAmount / maxShieldValue);
+            shieldLabel.setText(String.valueOf(shieldAmount));
+        } else {
+            shieldPane.setVisible(false);
+            maxShieldValue = 1;
+        }
         if (hero.isDead()) {
             heroNameLabel.setText(hero.getName() + " (DEAD)");
             hpBar.setProgress(0);
@@ -74,6 +120,7 @@ public class HeroCardController {
             defLabel.setText(String.valueOf(hero.getBaseDefense()));
             critChanceLabel.setText("0%");
             critDmgLabel.setText("0%");
+            shieldPane.setVisible(false);
         } else {
             heroNameLabel.setText(hero.getName());
             hpBar.setProgress((double) hero.getCurrentHP() / hero.getMaxHP());
@@ -90,38 +137,31 @@ public class HeroCardController {
         }
     }
 
-    public void setIdleAnimation(String idleName) {
-        if (idleName.endsWith("_left")) {
-            this.currentDirectionSuffix = "_left";
-        } else if (idleName.endsWith("_right")) {
-            this.currentDirectionSuffix = "_right";
-        }
-        this.currentIdleBase = "idle";
-        this.currentPersistentAnimationBase = "idle";
+    public void setMirrored(boolean mirrored) {
+        this.isMirrored = mirrored;
+        heroImageView.setScaleX(isMirrored ? -1 : 1);
     }
 
     private void playAnimation(String animNameBase) {
         if (this.hero == null) return;
+        heroImageView.setScaleX(isMirrored ? -1 : 1);
         if (hero.isDead()) {
             heroImageView.setImage(null);
             return;
         }
-
         String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
-        String fullAnimName = animNameBase + currentDirectionSuffix;
-        String path = String.format("/images/%s/%s.gif", heroFolder, fullAnimName);
-
+        String animFile = animNameBase.toLowerCase().replace(" ", "_") + "_right.gif";
+        String path = String.format("/images/%s/%s", heroFolder, animFile);
         try {
             Image newGif = new Image(getClass().getResourceAsStream(path));
             heroImageView.setImage(newGif);
         } catch (Exception e) {
-            System.err.println("Gagal load GIF: " + path + ". Memutar Idle.");
-            String idlePath = String.format("/images/%s/%s%s.gif", heroFolder, currentIdleBase, currentDirectionSuffix);
+            String idlePath = String.format("/images/%s/idle_right.gif", heroFolder);
             try {
                 Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
                 heroImageView.setImage(idleGif);
             } catch (Exception e2) {
-                System.err.println("Gagal total load GIF: " + idlePath);
+                System.err.println("Gagal total load GIF: " + path + " ATAU " + idlePath);
                 heroImageView.setImage(null);
             }
         }
@@ -131,13 +171,11 @@ public class HeroCardController {
         if (oneShotTimer != null) {
             oneShotTimer.stop();
         }
-
         playAnimation(animNameBase);
-
         oneShotTimer = new PauseTransition(Duration.seconds(1.0));
         oneShotTimer.setOnFinished(e -> {
-            playAnimation(this.currentPersistentAnimationBase);
             oneShotTimer = null;
+            updatePersistentAnimation();
         });
         oneShotTimer.play();
     }
@@ -151,11 +189,10 @@ public class HeroCardController {
         } else if (hero.isBuffed()) {
             currentPersistentAnimationBase = "buff";
         } else if (hero.isDebuffed()) {
-            currentPersistentAnimationBase = "debuff";
+            currentPersistentAnimationBase = "debuffed";
         } else {
-            currentPersistentAnimationBase = currentIdleBase;
+            currentPersistentAnimationBase = "idle";
         }
-
         if (oneShotTimer == null) {
             playAnimation(currentPersistentAnimationBase);
         }

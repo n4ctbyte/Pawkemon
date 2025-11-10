@@ -30,7 +30,7 @@ public class CryingHamster extends Hero {
     private class TearsOfCutenessSkill extends Skill implements SkillWithTargetType {
         public TearsOfCutenessSkill() {
             super("Tears of Cuteness", 40, 2);
-            this.description = "Menyembuhkan 1 kawan sebesar 30% dari Max HP target.";
+            this.description = "Menyembuhkan 1 rekan setim sebesar 30% dari Max HP target.";
         }
 
         @Override
@@ -84,7 +84,7 @@ public class CryingHamster extends Hero {
     private class DivineTearsSkill extends Ultimate {
         public DivineTearsSkill() {
             super("Divine Tears", 0, TargetType.SINGLE_ALLY);
-            this.description = "(ULTIMATE) Menghidupkan kembali (Revive) 1 kawan yang telah mati dengan 50% HP.";
+            this.description = "(ULTIMATE) Menghidupkan kembali (Revive) 1 rekan setim yang telah mati dengan 50% HP.";
         }
 
         @Override

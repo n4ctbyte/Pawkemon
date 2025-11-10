@@ -80,10 +80,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
         battleLogArea.setText("");
         gameOverPane.setVisible(false);
         gameOverPane.setOpacity(0.0);
-
         loadHeroCards(player1, team1VBox, player1Cards);
         loadHeroCards(player2, team2VBox, player2Cards);
-
         currentState = GameState.BUSY;
         team1VBox.setTranslateX(-400);
         team2VBox.setTranslateX(400);
@@ -92,10 +90,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
         controlPanel.setOpacity(0);
         skillGrid.setDisable(true);
         backButton.setVisible(false);
-
         updateAllHeroCards();
-        resetAllAnimationsToIdle();
-
+        updateAllPersistentAnimations();
         Platform.runLater(this::playIntroAnimation);
     }
 
@@ -121,13 +117,13 @@ public class BattleSceneController implements BattleLogger.LogListener {
     }
 
     private void loadHeroCards(Player player, VBox teamVBox, List<HeroCardController> cardList) {
-        String idleAnim = (player == player1) ? "idle_left" : "idle_right";
+        boolean isMirrored = (player == player1);
         for (Hero hero : player.getTeam()) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("HeroCard.fxml"));
                 VBox heroCardNode = loader.load();
                 HeroCardController controller = loader.getController();
-                controller.setIdleAnimation(idleAnim);
+                controller.setMirrored(isMirrored);
                 controller.updateData(hero);
                 heroCardNode.setOnMouseClicked(e -> onHeroCardClicked(controller));
                 teamVBox.getChildren().add(heroCardNode);
@@ -228,13 +224,10 @@ public class BattleSceneController implements BattleLogger.LogListener {
         clearAllHighlights();
         battleLogArea.setText("");
         log(user.getName() + " menggunakan " + selectedSkill.getName() + "!");
-
         HeroCardController userCard = getCardForHero(user);
         if (userCard != null) userCard.playOneShotAnimation(selectedSkill.getName());
-
         Player opponentPlayer = (currentPlayer == player1) ? player2 : player1;
         TargetType targetType = getSkillTargetType(selectedSkill);
-
         List<Hero> targets = new ArrayList<>();
         switch (targetType) {
             case SELF: targets.add(user); break;
@@ -243,52 +236,46 @@ public class BattleSceneController implements BattleLogger.LogListener {
             case ALL_ALLIES: targets.addAll(currentPlayer.getAliveHeroes()); break;
             case ALL_ENEMIES: targets.addAll(opponentPlayer.getAliveHeroes()); break;
         }
-
-        if ((targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES)) {
-            try {
-                java.lang.reflect.Method method = selectedSkill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
-                method.invoke(selectedSkill, user, targets, currentPlayer);
-            } catch (Exception e) {
+        try {
+            if (targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES) {
                 try {
+                    java.lang.reflect.Method method = selectedSkill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
+                    method.invoke(selectedSkill, user, targets, currentPlayer);
+                } catch (Exception e) {
                     if (selectedSkill instanceof skill.AoeSkill) ((skill.AoeSkill) selectedSkill).useAOE(user, targets);
                     else for (Hero t : targets) selectedSkill.use(user, t);
-                } catch (Exception ex) { System.err.println("Gagal panggil useAOE: " + ex.getMessage()); }
-            }
-        } else {
-            try {
-                java.lang.reflect.Method method = selectedSkill.getClass().getMethod("use", Hero.class, Hero.class, Player.class);
-                method.invoke(selectedSkill, user, targets.get(0), currentPlayer);
-            } catch (NoSuchMethodException e) {
+                }
+            } else {
                 try {
+                    java.lang.reflect.Method method = selectedSkill.getClass().getMethod("use", Hero.class, Hero.class, Player.class);
+                    method.invoke(selectedSkill, user, targets.get(0), currentPlayer);
+                } catch (NoSuchMethodException e) {
                     selectedSkill.use(user, targets.get(0));
-                } catch (Exception ex) { System.err.println("Gagal panggil method 'use' standar: " + ex.getMessage()); }
-            } catch (Exception e) { System.err.println("Gagal panggil method 'use' custom: " + e.getMessage()); }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Gagal eksekusi skill: " + e.getMessage());
         }
-
         boolean isHeal = (selectedSkill instanceof HealSkill || selectedSkill instanceof HoTSkill || selectedSkill.getName().equals("Divine Tears"));
         for (Hero t : targets) {
             HeroCardController targetCard = getCardForHero(t);
             if (targetCard != null) {
-                if (isHeal) targetCard.playOneShotAnimation("heal");
-                else if (targetType != TargetType.SELF) targetCard.playOneShotAnimation("hit");
+                if (isHeal) targetCard.playOneShotAnimation("healed");
+                else if (targetType != TargetType.SELF) targetCard.playOneShotAnimation("getHit");
             }
         }
-
         if (selectedSkill instanceof Ultimate) user.setUltimateBar(0);
         else if (!(selectedSkill instanceof skill.BasicAttack)) {
             user.setCurrentEnergy(user.getCurrentEnergy() - selectedSkill.getEnergyCost());
             selectedSkill.startCooldown();
             user.gainUltimateBar(20);
         }
-
         player1.getTeam().forEach(h -> { if (h.isAlive()) h.updateStatusEffects(); });
         player2.getTeam().forEach(h -> { if (h.isAlive()) h.updateStatusEffects(); });
         currentPlayer.getTeam().forEach(Hero::reduceStatusEffectDurations);
         currentPlayer.getTeam().forEach(h -> h.getSkills().forEach(Skill::reduceCooldown));
-
         updateAllHeroCards();
         if (!player1.isTeamAlive() || !player2.isTeamAlive()) { endGame(); return; }
-
         new Thread(() -> {
             try { Thread.sleep(1500); } catch (InterruptedException e) {}
             Platform.runLater(this::switchTurn);
@@ -302,7 +289,6 @@ public class BattleSceneController implements BattleLogger.LogListener {
         skillGrid.setDisable(true);
         updateAllHeroCards();
         updateAllPersistentAnimations();
-
         if (currentPlayer == player1) {
             currentPlayer = player2;
             log("Giliran Player 2. Pilih hero yang akan beraksi.");
@@ -311,7 +297,6 @@ public class BattleSceneController implements BattleLogger.LogListener {
             log("Giliran Player 1. Pilih hero yang akan beraksi.");
         }
         currentState = GameState.SELECTING_HERO;
-
         List<Hero> aliveHeroes = currentPlayer.getAliveHeroes();
         if (aliveHeroes.isEmpty()) return;
         boolean allStunned = aliveHeroes.stream().allMatch(Hero::isStunned);
@@ -338,7 +323,10 @@ public class BattleSceneController implements BattleLogger.LogListener {
         currentPlayer.getTeam().forEach(h -> h.getSkills().forEach(Skill::reduceCooldown));
         updateAllHeroCards();
         updateAllPersistentAnimations();
-        if (!player1.isTeamAlive() || !player2.isTeamAlive()) { endGame(); return; }
+        if (!player1.isTeamAlive() || !player2.isTeamAlive()) {
+            endGame();
+            return;
+        }
         new Thread(() -> {
             try { Thread.sleep(1500); } catch (InterruptedException e) {}
             Platform.runLater(this::switchTurn);
@@ -429,10 +417,6 @@ public class BattleSceneController implements BattleLogger.LogListener {
                 .filter(card -> card.getHero() == hero)
                 .findFirst()
                 .orElse(null);
-    }
-    
-    private void resetAllAnimationsToIdle() {
-        updateAllPersistentAnimations();
     }
     
     private void updateAllPersistentAnimations() {

@@ -43,7 +43,7 @@ public class BananaCat extends Hero {
 
             int stunTurns = hasShield ? 3 : 2;
             target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, stunTurns, 0, null));
-            BattleLogger.getInstance().log(target.getName() + " is stunned for " + (stunTurns - 1) + " turn(s) by Banana Bop!");
+            BattleLogger.getInstance().log(target.getName() + " is stunned for " + stunTurns + " turn(s) by Banana Bop!");
         }
 
         @Override
@@ -74,7 +74,7 @@ public class BananaCat extends Hero {
     public class BananaHeartRoarSkill extends Ultimate {
         public BananaHeartRoarSkill() {
             super("Banana Heart Roar", 0, TargetType.ALL_ENEMIES);
-            this.description = "(ULTIMATE) Memaksa semua musuh menyerang Banana Cat (TAUNT) selama 2 giliran. Sekaligus memberikan SHIELD (10% Max HP) ke semua kawan selama 2 giliran.";
+            this.description = "(ULTIMATE) Memaksa semua musuh menyerang Banana Cat (TAUNT) selama 1 giliran. Sekaligus memberikan SHIELD (10% Max HP) ke semua rekan setim selama 2 giliran.";
         }
 
         @Override
@@ -83,7 +83,7 @@ public class BananaCat extends Hero {
         @Override
         public void useAOE(Hero user, List<Hero> targets, Player player) {
             for (Hero enemy : targets) {
-                StatusEffect tauntEffect = new StatusEffect(StatusEffect.Type.TAUNT, 2, 0, null);
+                StatusEffect tauntEffect = new StatusEffect(StatusEffect.Type.TAUNT, 1, 0, null);
                 tauntEffect.setSource(user.getName());
                 enemy.addStatusEffect(tauntEffect);
             }

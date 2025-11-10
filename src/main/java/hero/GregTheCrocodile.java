@@ -57,7 +57,7 @@ public class GregTheCrocodile extends Hero {
         @Override
         public void use(Hero user, Hero target) {
             target.addStatusEffect(new StatusEffect(StatusEffect.Type.STUN, 2, 0, null));
-            BattleLogger.getInstance().log(target.getName() + " is stunned for 1 turn by Warning Bite!");
+            BattleLogger.getInstance().log(target.getName() + " is stunned for 2 turn by Warning Bite!");
         }
 
         @Override

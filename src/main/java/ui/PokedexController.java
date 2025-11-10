@@ -54,11 +54,12 @@ public class PokedexController {
             headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
             String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
-            String idlePath = String.format("/images/%s/idle_left.gif", heroFolder);
+            String idlePath = String.format("/images/%s/idle_right.gif", heroFolder);
             ImageView heroIdleView = new ImageView();
             heroIdleView.setFitHeight(120.0);
             heroIdleView.setFitWidth(120.0);
             heroIdleView.setPreserveRatio(true);
+            heroIdleView.setScaleX(-1);
             try {
                 Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
                 heroIdleView.setImage(idleGif);

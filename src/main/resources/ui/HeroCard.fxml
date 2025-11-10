@@ -12,9 +12,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="rootBox" alignment="TOP_LEFT" prefWidth="320.0" spacing="5.0"
-      style="-fx-background-color: rgba(0, 0, 0, 0.7); -fx-background-radius: 10; -fx-border-color: transparent; -fx-border-width: 1; -fx-border-radius: 10;"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<VBox fx:id="rootBox" alignment="TOP_LEFT" prefWidth="320.0" spacing="5.0" 
+      style="-fx-background-color: rgba(0, 0, 0, 0.7); -fx-background-radius: 10; -fx-border-color: transparent; -fx-border-width: 1; -fx-border-radius: 10;" 
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="ui.HeroCardController">
    <children>
       <Label fx:id="heroNameLabel" text="Hero Name" textFill="WHITE">
@@ -32,14 +32,14 @@
             <VBox spacing="5.0">
                <children>
                   <GridPane hgap="10.0" vgap="2.0">
-                     <columnConstraints>
-                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="105.0" />
-                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="105.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
+                    <columnConstraints>
+                      <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="105.0" />
+                      <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="105.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
                         <HBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                            <children>
@@ -69,6 +69,13 @@
                   </GridPane>
                   <VBox spacing="1.0">
                      <children>
+                        <StackPane fx:id="shieldPane" visible="false">
+                           <children>
+                              <ProgressBar prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #7f8c8d;" />
+                              <ProgressBar fx:id="shieldBar" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #3498db; -fx-control-inner-background: transparent;" />
+                              <Label fx:id="shieldLabel" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;" text="50" />
+                           </children>
+                        </StackPane>
                         <StackPane>
                            <children>
                               <ProgressBar fx:id="hpBar" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #2ecc71;" />
@@ -94,8 +101,7 @@
          </children>
       </HBox>
       <HBox fx:id="statusBox" alignment="CENTER_LEFT" minHeight="20.0" prefWidth="300.0" spacing="4.0" style="-fx-padding: 5 0 0 0;" />
-   </children>
-   <padding>
+   </children> <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
 </VBox>

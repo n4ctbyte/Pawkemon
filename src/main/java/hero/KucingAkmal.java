@@ -17,7 +17,7 @@ public class KucingAkmal extends Hero {
     private static final Random random = new Random();
 
     public KucingAkmal() {
-        super("Kucing Akmal", 100, 1000, 0, 100);
+        super("Kucing Akmal", 100, 30, 0, 100);
         
         BasicAttack basic = new BasicAttack();
         basic.setDescription("Serangan dasar (100% ATK) yang juga menghasilkan 10 poin Ultimate.");
@@ -52,7 +52,7 @@ public class KucingAkmal extends Hero {
     private class RotailStrikeSkill extends Skill implements SkillWithTargetType {
         public RotailStrikeSkill() {
             super("Rotail Strike", 30, 2);
-            this.description = "Menyerang 1 musuh (120% ATK). Memiliki 90% peluang untuk memberi STUN (1 giliran) dan DOT (10 dmg/giliran) selama 5 giliran.";
+            this.description = "Menyerang 1 musuh (120% ATK). Memiliki 40% peluang untuk memberi STUN (1 giliran) dan DOT (10 dmg/giliran) selama 5 giliran.";
         }
 
         @Override
@@ -61,7 +61,7 @@ public class KucingAkmal extends Hero {
             target.applyDamage(damage);
             BattleLogger.getInstance().log(user.getName() + " uses Rotail Strike on " + target.getName() + " for " + damage + " damage!");
 
-            if (random.nextDouble() < 0.90) {
+            if (random.nextDouble() < 0.40) {
                 target.addStatusEffect(new StatusEffect(StatusEffect.Type.DOT, 5, 10, null));
                 BattleLogger.getInstance().log(target.getName() + " is affected by damage over time from Rotail Strike!");
 

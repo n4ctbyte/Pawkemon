@@ -34,8 +34,8 @@ public class KucingCukurukuk extends Hero {
 
         @Override
         public void use(Hero user, Hero target) {
-            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 50, Attribute.CRIT_CHANCE));
-            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 4, 50, Attribute.CRIT_DAMAGE));
+            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 2, 50, Attribute.CRIT_CHANCE));
+            user.addStatusEffect(new StatusEffect(StatusEffect.Type.BUFF, 2, 50, Attribute.CRIT_DAMAGE));
             BattleLogger.getInstance().log(user.getName() + " enters Stoic Stance! Crit chance +50%, Crit damage +50% for 2 turns.");
         }
 

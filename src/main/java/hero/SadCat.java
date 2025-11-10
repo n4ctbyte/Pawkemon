@@ -56,7 +56,7 @@ public class SadCat extends Hero {
     public class DrainingWhisperSkill extends Skill implements SkillWithTargetType {
         public DrainingWhisperSkill() {
             super("Draining Whisper", 50, 4);
-            this.description = "Menyerap 35% Energi dari 1 musuh dan membagikannya secara rata ke semua kawan yang masih hidup. Musuh yang diserang juga terkena DEBUFF ATK (-15%) selama 3 giliran.";
+            this.description = "Menyerap 35% Energi dari 1 musuh dan membagikannya secara rata ke semua rekan setim yang masih hidup. Musuh yang diserang juga terkena DEBUFF ATK (-15%) selama 3 giliran.";
         }
 
         @Override
