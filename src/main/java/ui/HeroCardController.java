@@ -2,6 +2,7 @@ package ui;
 
 import game.Hero;
 import game.StatusEffect;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -10,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class HeroCardController {
 
@@ -29,9 +31,14 @@ public class HeroCardController {
     @FXML private Label critDmgLabel;
 
     private Hero hero;
+    private String currentIdleBase = "idle";
+    private String currentDirectionSuffix = "_right";
+    private String currentPersistentAnimationBase = "idle";
+    private PauseTransition oneShotTimer;
 
     public void updateData(Hero hero) {
         this.hero = hero;
+
         statusBox.getChildren().clear();
         for (StatusEffect effect : hero.getActiveEffects()) {
             String text = "";
@@ -53,6 +60,7 @@ public class HeroCardController {
             effectLabel.setTextFill(Color.WHITE);
             statusBox.getChildren().add(effectLabel);
         }
+
         if (hero.isDead()) {
             heroNameLabel.setText(hero.getName() + " (DEAD)");
             hpBar.setProgress(0);
@@ -82,27 +90,74 @@ public class HeroCardController {
         }
     }
 
-    public void showAnimation(String animationName) {
+    public void setIdleAnimation(String idleName) {
+        if (idleName.endsWith("_left")) {
+            this.currentDirectionSuffix = "_left";
+        } else if (idleName.endsWith("_right")) {
+            this.currentDirectionSuffix = "_right";
+        }
+        this.currentIdleBase = "idle";
+        this.currentPersistentAnimationBase = "idle";
+    }
+
+    private void playAnimation(String animNameBase) {
         if (this.hero == null) return;
         if (hero.isDead()) {
             heroImageView.setImage(null);
             return;
         }
+
         String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
-        String animNameBase = animationName.toLowerCase().replace(" ", "_");
-        String defaultIdlePath = String.format("/images/%s/idle_right.gif", heroFolder);
-        String path = String.format("/images/%s/%s.gif", heroFolder, animNameBase);
+        String fullAnimName = animNameBase + currentDirectionSuffix;
+        String path = String.format("/images/%s/%s.gif", heroFolder, fullAnimName);
+
         try {
             Image newGif = new Image(getClass().getResourceAsStream(path));
             heroImageView.setImage(newGif);
         } catch (Exception e) {
+            System.err.println("Gagal load GIF: " + path + ". Memutar Idle.");
+            String idlePath = String.format("/images/%s/%s%s.gif", heroFolder, currentIdleBase, currentDirectionSuffix);
             try {
-                Image idleGif = new Image(getClass().getResourceAsStream(defaultIdlePath));
+                Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
                 heroImageView.setImage(idleGif);
             } catch (Exception e2) {
-                System.err.println("Gagal total load GIF: " + path + " ATAU " + defaultIdlePath);
+                System.err.println("Gagal total load GIF: " + idlePath);
                 heroImageView.setImage(null);
             }
+        }
+    }
+
+    public void playOneShotAnimation(String animNameBase) {
+        if (oneShotTimer != null) {
+            oneShotTimer.stop();
+        }
+
+        playAnimation(animNameBase);
+
+        oneShotTimer = new PauseTransition(Duration.seconds(1.0));
+        oneShotTimer.setOnFinished(e -> {
+            playAnimation(this.currentPersistentAnimationBase);
+            oneShotTimer = null;
+        });
+        oneShotTimer.play();
+    }
+
+    public void updatePersistentAnimation() {
+        if (hero == null) return;
+        if (hero.isDead()) {
+            currentPersistentAnimationBase = "dead";
+        } else if (hero.isStunned()) {
+            currentPersistentAnimationBase = "stun";
+        } else if (hero.isBuffed()) {
+            currentPersistentAnimationBase = "buff";
+        } else if (hero.isDebuffed()) {
+            currentPersistentAnimationBase = "debuff";
+        } else {
+            currentPersistentAnimationBase = currentIdleBase;
+        }
+
+        if (oneShotTimer == null) {
+            playAnimation(currentPersistentAnimationBase);
         }
     }
 

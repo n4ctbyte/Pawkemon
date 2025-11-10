@@ -244,6 +244,20 @@ public class Hero {
         return false;
     }
 
+    public boolean isBuffed() {
+        for (StatusEffect effect : activeEffects) {
+            if (effect.getType() == StatusEffect.Type.BUFF) return true;
+        }
+        return false;
+    }
+
+    public boolean isDebuffed() {
+        for (StatusEffect effect : activeEffects) {
+            if (effect.getType() == StatusEffect.Type.DEBUFF) return true;
+        }
+        return false;
+    }
+
     public void setCurrentHP(int value) { this.currentHP = Math.max(0, Math.min(maxHP, value)); }
     public boolean isDead() { return currentHP <= 0; }
     public String getName() { return name; }

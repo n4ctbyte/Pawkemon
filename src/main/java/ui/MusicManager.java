@@ -11,7 +11,14 @@ public class MusicManager {
     private MediaPlayer menuMusicPlayer;
     private MediaPlayer battleMusicPlayer;
     private MediaPlayer sfxPlayer;
+    private MediaPlayer logoSfxPlayer;
+    private MediaPlayer bounceSfxPlayer;
+    private MediaPlayer bgRevealSfxPlayer;
+
     private Media clickSound;
+    private Media logoSound;
+    private Media bounceSound;
+    private Media bgRevealSound;
 
     private MusicManager() {
         try {
@@ -50,6 +57,33 @@ public class MusicManager {
         } catch (Exception e) {
             System.err.println("Gagal memuat /sounds/click.mp3.");
         }
+
+        try {
+            String logoSfxPath = getClass().getResource("/sounds/logo_sfx.mp3").toURI().toString();
+            logoSound = new Media(logoSfxPath);
+            logoSfxPlayer = new MediaPlayer(logoSound);
+            logoSfxPlayer.setVolume(1.0);
+        } catch (Exception e) {
+            System.err.println("Gagal memuat /sounds/logo_sfx.mp3.");
+        }
+
+        try {
+            String bounceSfxPath = getClass().getResource("/sounds/landing.mp3").toURI().toString();
+            bounceSound = new Media(bounceSfxPath);
+            bounceSfxPlayer = new MediaPlayer(bounceSound);
+            bounceSfxPlayer.setVolume(1.0);
+        } catch (Exception e) {
+            System.err.println("Gagal memuat /sounds/bounce_sfx.mp3.");
+        }
+
+        try {
+            String bgRevealSfxPath = getClass().getResource("/sounds/bg_reveal.mp3").toURI().toString();
+            bgRevealSound = new Media(bgRevealSfxPath);
+            bgRevealSfxPlayer = new MediaPlayer(bgRevealSound);
+            bgRevealSfxPlayer.setVolume(0.8);
+        } catch (Exception e) {
+            System.err.println("Gagal memuat /sounds/bg_reveal_sfx.mp3.");
+        }
     }
 
     public static MusicManager getInstance() {
@@ -64,9 +98,7 @@ public class MusicManager {
     }
 
     public void stopMenuMusic() {
-        if (menuMusicPlayer != null) {
-            menuMusicPlayer.stop();
-        }
+        if (menuMusicPlayer != null) menuMusicPlayer.stop();
     }
 
     public void playBattleMusic() {
@@ -77,15 +109,34 @@ public class MusicManager {
     }
 
     public void stopBattleMusic() {
-        if (battleMusicPlayer != null) {
-            battleMusicPlayer.stop();
-        }
+        if (battleMusicPlayer != null) battleMusicPlayer.stop();
     }
 
     public void playClickSound() {
         if (sfxPlayer != null) {
             sfxPlayer.stop();
             sfxPlayer.play();
+        }
+    }
+
+    public void playLogoSound() {
+        if (logoSfxPlayer != null) {
+            logoSfxPlayer.stop();
+            logoSfxPlayer.play();
+        }
+    }
+
+    public void playBounceSound() {
+        if (bounceSfxPlayer != null) {
+            bounceSfxPlayer.stop();
+            bounceSfxPlayer.play();
+        }
+    }
+
+    public void playBgRevealSound() {
+        if (bgRevealSfxPlayer != null) {
+            bgRevealSfxPlayer.stop();
+            bgRevealSfxPlayer.play();
         }
     }
 }

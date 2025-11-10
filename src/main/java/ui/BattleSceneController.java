@@ -24,6 +24,8 @@ import javafx.stage.Stage;
 import skill.Skill;
 import skill.SkillWithTargetType;
 import skill.Ultimate;
+import skill.HealSkill;
+import skill.HoTSkill;
 import javafx.util.Duration;
 import java.util.stream.Stream;
 import java.io.IOException;
@@ -78,8 +80,10 @@ public class BattleSceneController implements BattleLogger.LogListener {
         battleLogArea.setText("");
         gameOverPane.setVisible(false);
         gameOverPane.setOpacity(0.0);
+
         loadHeroCards(player1, team1VBox, player1Cards);
         loadHeroCards(player2, team2VBox, player2Cards);
+
         currentState = GameState.BUSY;
         team1VBox.setTranslateX(-400);
         team2VBox.setTranslateX(400);
@@ -88,8 +92,10 @@ public class BattleSceneController implements BattleLogger.LogListener {
         controlPanel.setOpacity(0);
         skillGrid.setDisable(true);
         backButton.setVisible(false);
+
         updateAllHeroCards();
         resetAllAnimationsToIdle();
+
         Platform.runLater(this::playIntroAnimation);
     }
 
@@ -115,11 +121,13 @@ public class BattleSceneController implements BattleLogger.LogListener {
     }
 
     private void loadHeroCards(Player player, VBox teamVBox, List<HeroCardController> cardList) {
+        String idleAnim = (player == player1) ? "idle_left" : "idle_right";
         for (Hero hero : player.getTeam()) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("HeroCard.fxml"));
                 VBox heroCardNode = loader.load();
                 HeroCardController controller = loader.getController();
+                controller.setIdleAnimation(idleAnim);
                 controller.updateData(hero);
                 heroCardNode.setOnMouseClicked(e -> onHeroCardClicked(controller));
                 teamVBox.getChildren().add(heroCardNode);
@@ -204,9 +212,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
         TargetType targetType = getSkillTargetType(skill);
         if (targetType == TargetType.SELF) executeTurn(selectedHero, selectedHero);
         else if (targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES) {
-            Hero dummyTarget = (targetType == TargetType.ALL_ALLIES)
-                ? currentPlayer.getAliveHeroes().get(0)
-                : ((currentPlayer == player1) ? player2 : player1).getAliveHeroes().get(0);
+            Hero dummyTarget = (targetType == TargetType.ALL_ALLIES) ? currentPlayer.getAliveHeroes().get(0) : ((currentPlayer == player1) ? player2 : player1).getAliveHeroes().get(0);
             executeTurn(selectedHero, dummyTarget);
         } else {
             currentState = GameState.SELECTING_TARGET;
@@ -222,10 +228,13 @@ public class BattleSceneController implements BattleLogger.LogListener {
         clearAllHighlights();
         battleLogArea.setText("");
         log(user.getName() + " menggunakan " + selectedSkill.getName() + "!");
+
         HeroCardController userCard = getCardForHero(user);
-        if (userCard != null) userCard.showAnimation(selectedSkill.getName());
+        if (userCard != null) userCard.playOneShotAnimation(selectedSkill.getName());
+
         Player opponentPlayer = (currentPlayer == player1) ? player2 : player1;
         TargetType targetType = getSkillTargetType(selectedSkill);
+
         List<Hero> targets = new ArrayList<>();
         switch (targetType) {
             case SELF: targets.add(user); break;
@@ -234,16 +243,15 @@ public class BattleSceneController implements BattleLogger.LogListener {
             case ALL_ALLIES: targets.addAll(currentPlayer.getAliveHeroes()); break;
             case ALL_ENEMIES: targets.addAll(opponentPlayer.getAliveHeroes()); break;
         }
-        if (targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES) {
+
+        if ((targetType == TargetType.ALL_ALLIES || targetType == TargetType.ALL_ENEMIES)) {
             try {
                 java.lang.reflect.Method method = selectedSkill.getClass().getMethod("useAOE", Hero.class, List.class, Player.class);
                 method.invoke(selectedSkill, user, targets, currentPlayer);
             } catch (Exception e) {
                 try {
-                    if (selectedSkill instanceof skill.AoeSkill)
-                        ((skill.AoeSkill) selectedSkill).useAOE(user, targets);
-                    else
-                        for (Hero t : targets) selectedSkill.use(user, t);
+                    if (selectedSkill instanceof skill.AoeSkill) ((skill.AoeSkill) selectedSkill).useAOE(user, targets);
+                    else for (Hero t : targets) selectedSkill.use(user, t);
                 } catch (Exception ex) { System.err.println("Gagal panggil useAOE: " + ex.getMessage()); }
             }
         } else {
@@ -256,19 +264,31 @@ public class BattleSceneController implements BattleLogger.LogListener {
                 } catch (Exception ex) { System.err.println("Gagal panggil method 'use' standar: " + ex.getMessage()); }
             } catch (Exception e) { System.err.println("Gagal panggil method 'use' custom: " + e.getMessage()); }
         }
-        if (selectedSkill instanceof Ultimate) {
-            user.setUltimateBar(0);
-        } else if (!(selectedSkill instanceof skill.BasicAttack)) {
+
+        boolean isHeal = (selectedSkill instanceof HealSkill || selectedSkill instanceof HoTSkill || selectedSkill.getName().equals("Divine Tears"));
+        for (Hero t : targets) {
+            HeroCardController targetCard = getCardForHero(t);
+            if (targetCard != null) {
+                if (isHeal) targetCard.playOneShotAnimation("heal");
+                else if (targetType != TargetType.SELF) targetCard.playOneShotAnimation("hit");
+            }
+        }
+
+        if (selectedSkill instanceof Ultimate) user.setUltimateBar(0);
+        else if (!(selectedSkill instanceof skill.BasicAttack)) {
             user.setCurrentEnergy(user.getCurrentEnergy() - selectedSkill.getEnergyCost());
             selectedSkill.startCooldown();
             user.gainUltimateBar(20);
         }
+
         player1.getTeam().forEach(h -> { if (h.isAlive()) h.updateStatusEffects(); });
         player2.getTeam().forEach(h -> { if (h.isAlive()) h.updateStatusEffects(); });
         currentPlayer.getTeam().forEach(Hero::reduceStatusEffectDurations);
         currentPlayer.getTeam().forEach(h -> h.getSkills().forEach(Skill::reduceCooldown));
+
         updateAllHeroCards();
         if (!player1.isTeamAlive() || !player2.isTeamAlive()) { endGame(); return; }
+
         new Thread(() -> {
             try { Thread.sleep(1500); } catch (InterruptedException e) {}
             Platform.runLater(this::switchTurn);
@@ -281,7 +301,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
         skillGrid.getChildren().clear();
         skillGrid.setDisable(true);
         updateAllHeroCards();
-        resetAllAnimationsToIdle();
+        updateAllPersistentAnimations();
+
         if (currentPlayer == player1) {
             currentPlayer = player2;
             log("Giliran Player 2. Pilih hero yang akan beraksi.");
@@ -290,6 +311,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
             log("Giliran Player 1. Pilih hero yang akan beraksi.");
         }
         currentState = GameState.SELECTING_HERO;
+
         List<Hero> aliveHeroes = currentPlayer.getAliveHeroes();
         if (aliveHeroes.isEmpty()) return;
         boolean allStunned = aliveHeroes.stream().allMatch(Hero::isStunned);
@@ -315,11 +337,8 @@ public class BattleSceneController implements BattleLogger.LogListener {
         currentPlayer.getTeam().forEach(Hero::reduceStatusEffectDurations);
         currentPlayer.getTeam().forEach(h -> h.getSkills().forEach(Skill::reduceCooldown));
         updateAllHeroCards();
-        resetAllAnimationsToIdle();
-        if (!player1.isTeamAlive() || !player2.isTeamAlive()) {
-            endGame();
-            return;
-        }
+        updateAllPersistentAnimations();
+        if (!player1.isTeamAlive() || !player2.isTeamAlive()) { endGame(); return; }
         new Thread(() -> {
             try { Thread.sleep(1500); } catch (InterruptedException e) {}
             Platform.runLater(this::switchTurn);
@@ -400,28 +419,34 @@ public class BattleSceneController implements BattleLogger.LogListener {
             skillGrid.add(skillButton, i % 2, i / 2);
         }
     }
-
+    
     private void updateAllHeroCards() {
         for (HeroCardController card : player1Cards) card.updateData(card.getHero());
         for (HeroCardController card : player2Cards) card.updateData(card.getHero());
     }
-
     private HeroCardController getCardForHero(Hero hero) {
         return Stream.concat(player1Cards.stream(), player2Cards.stream())
                 .filter(card -> card.getHero() == hero)
                 .findFirst()
                 .orElse(null);
     }
-
+    
     private void resetAllAnimationsToIdle() {
-        for (HeroCardController card : player1Cards) card.showAnimation("idle_left");
-        for (HeroCardController card : player2Cards) card.showAnimation("idle_right");
+        updateAllPersistentAnimations();
     }
-
+    
+    private void updateAllPersistentAnimations() {
+        for (HeroCardController card : player1Cards) {
+            card.updatePersistentAnimation();
+        }
+        for (HeroCardController card : player2Cards) {
+            card.updatePersistentAnimation();
+        }
+    }
+    
     private void highlightHero(Hero hero, String color) {
         getCardForHero(hero).highlight(color);
     }
-
     private void highlightTargetOptions(TargetType targetType) {
         clearAllHighlights();
         highlightHero(selectedHero, "#2ecc71");
@@ -436,22 +461,18 @@ public class BattleSceneController implements BattleLogger.LogListener {
             enemies.forEach(card -> { if (card.getHero().isAlive()) card.highlight(targetColor); });
         }
     }
-
     private void clearAllHighlights() {
         player1Cards.forEach(HeroCardController::clearHighlight);
         player2Cards.forEach(HeroCardController::clearHighlight);
     }
-
     private TargetType getSkillTargetType(Skill skill) {
         if (skill instanceof SkillWithTargetType) return ((SkillWithTargetType) skill).getTargetType();
         return TargetType.SINGLE_ENEMY;
     }
-
     private void log(String message) {
         announcementLabel.setText(message);
         System.out.println("[Announcement] " + message);
     }
-
     @Override
     public void onNewLog(String message) {
         battleLogArea.appendText("  > " + message + "\n");

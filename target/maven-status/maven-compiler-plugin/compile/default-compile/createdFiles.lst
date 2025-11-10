@@ -30,6 +30,7 @@ skill\BuffSkill.class
 hero\GregTheCrocodile$DeathRollSkill.class
 ui\PokedexController.class
 ui\SelectionSceneController.class
+ui\SplashScreen2Controller.class
 hero\BananaCat.class
 hero\KucingCukurukuk$StoicStanceSkill.class
 game\Attribute.class
