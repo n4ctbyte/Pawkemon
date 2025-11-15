@@ -11,7 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Color; 
 import javafx.util.Duration;
 
 public class HeroCardController {
@@ -19,7 +19,7 @@ public class HeroCardController {
     @FXML private StackPane shieldPane;
     @FXML private ProgressBar shieldBar;
     @FXML private Label shieldLabel;
-    @FXML private VBox rootBox;
+    @FXML private VBox rootBox; 
     @FXML private Label heroNameLabel;
     @FXML private ImageView heroImageView;
     @FXML private HBox statusBox;
@@ -35,26 +35,31 @@ public class HeroCardController {
     @FXML private Label critDmgLabel;
 
     private Hero hero;
+    
     private boolean isMirrored = false;
     private String currentPersistentAnimationBase = "idle";
-    private PauseTransition oneShotTimer;
-    private double maxShieldValue = 1;
+    private PauseTransition oneShotTimer; 
+    
+    private double maxShieldValue = 1; 
 
     public void updateData(Hero hero) {
         this.hero = hero;
-        int shieldAmount = 0;
-        boolean justGotShielded = false;
+        
+        int shieldAmount = 0; 
+        boolean justGotShielded = false; 
+        
         statusBox.getChildren().clear();
         for (StatusEffect effect : hero.getActiveEffects()) {
             String text = "";
             String style = "-fx-padding: 2 4 2 4; -fx-background-radius: 3; -fx-background-color: ";
             style += "-fx-font-size: 9px; -fx-font-weight: bold; ";
+            
             switch (effect.getType()) {
                 case SHIELD:
                     shieldAmount += effect.getValue();
                     text = "SHIELD (" + effect.getValue() + ")";
                     style += "#3498db;";
-                    if (effect.getDuration() == 4 || effect.getDuration() == 2) {
+                    if (effect.getDuration() == 4 || effect.getDuration() == 2) { 
                         maxShieldValue = Math.max(maxShieldValue, effect.getValue());
                         justGotShielded = true;
                     }
@@ -94,10 +99,11 @@ public class HeroCardController {
                 default: text = effect.getType().toString() + "(" + effect.getDuration() + ")"; style += "#95a5a6;";
             }
             Label effectLabel = new Label(text);
-            effectLabel.setStyle(style);
-            effectLabel.setTextFill(Color.WHITE);
+            effectLabel.setStyle(style); 
+            effectLabel.setTextFill(Color.WHITE); 
             statusBox.getChildren().add(effectLabel);
         }
+        
         if (shieldAmount > 0) {
             shieldPane.setVisible(true);
             if (justGotShielded) { maxShieldValue = Math.max(maxShieldValue, shieldAmount); }
@@ -107,6 +113,7 @@ public class HeroCardController {
             shieldPane.setVisible(false);
             maxShieldValue = 1;
         }
+        
         if (hero.isDead()) {
             heroNameLabel.setText(hero.getName() + " (DEAD)");
             hpBar.setProgress(0);
@@ -142,21 +149,26 @@ public class HeroCardController {
         heroImageView.setScaleX(isMirrored ? -1 : 1);
     }
 
-    private void playAnimation(String animNameBase) {
+    private void playAnimation(String animName) {
         if (this.hero == null) return;
+        
         heroImageView.setScaleX(isMirrored ? -1 : 1);
+
         if (hero.isDead()) {
             heroImageView.setImage(null);
             return;
         }
+
         String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
-        String animFile = animNameBase.toLowerCase().replace(" ", "_") + "_right.gif";
+        
+        String animFile = animName.toLowerCase().replace(" ", "_") + ".gif";
         String path = String.format("/images/%s/%s", heroFolder, animFile);
+
         try {
             Image newGif = new Image(getClass().getResourceAsStream(path));
             heroImageView.setImage(newGif);
         } catch (Exception e) {
-            String idlePath = String.format("/images/%s/idle_right.gif", heroFolder);
+            String idlePath = String.format("/images/%s/idle.gif", heroFolder);
             try {
                 Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
                 heroImageView.setImage(idleGif);
@@ -167,40 +179,54 @@ public class HeroCardController {
         }
     }
 
-    public void playOneShotAnimation(String animNameBase) {
+    public void playOneShotAnimation(String animFileName) {
         if (oneShotTimer != null) {
             oneShotTimer.stop();
         }
-        playAnimation(animNameBase);
-        oneShotTimer = new PauseTransition(Duration.seconds(1.0));
+        
+        playAnimation(animFileName); 
+        
+        oneShotTimer = new PauseTransition(Duration.seconds(1.0)); 
+        
         oneShotTimer.setOnFinished(e -> {
             oneShotTimer = null;
             updatePersistentAnimation();
         });
+        
         oneShotTimer.play();
+    }
+    
+    public void showAnimation(String animationName) {
+        playOneShotAnimation(animationName);
     }
 
     public void updatePersistentAnimation() {
         if (hero == null) return;
+        
+        String animBaseName;
+        
         if (hero.isDead()) {
-            currentPersistentAnimationBase = "dead";
+            animBaseName = "dead";
         } else if (hero.isStunned()) {
-            currentPersistentAnimationBase = "stun";
+            animBaseName = "stun";
+        } else if (hero.isTaunted()) {
+            animBaseName = "taunt";
         } else if (hero.isBuffed()) {
-            currentPersistentAnimationBase = "buff";
+            animBaseName = "buffed";
         } else if (hero.isDebuffed()) {
-            currentPersistentAnimationBase = "debuffed";
+            animBaseName = "debuffed";
         } else {
-            currentPersistentAnimationBase = "idle";
+            animBaseName = "idle";
         }
+
         if (oneShotTimer == null) {
-            playAnimation(currentPersistentAnimationBase);
+            playAnimation(animBaseName);
         }
     }
-
+    
     public Hero getHero() { return this.hero; }
     public VBox getRoot() { return this.rootBox; }
-
+    
     public void highlight(String color) {
         rootBox.setStyle(
             "-fx-background-color: rgba(0, 0, 0, 0.7); -fx-background-radius: 10;" +
@@ -208,9 +234,8 @@ public class HeroCardController {
             "-fx-border-width: 3; -fx-border-color: " + color + ";"
         );
     }
-
     public void clearHighlight() {
-        rootBox.setStyle(
+         rootBox.setStyle(
             "-fx-background-color: rgba(0, 0, 0, 0.7); -fx-background-radius: 10;" +
             "-fx-padding: 10; -fx-border-radius: 10;" +
             "-fx-border-width: 1; -fx-border-color: transparent;"

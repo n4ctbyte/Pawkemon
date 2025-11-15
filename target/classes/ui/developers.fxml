@@ -51,7 +51,7 @@
                   <Label text="Nicholas Adiputra Tan" textFill="WHITE" style="-fx-font-size: 18px;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label text="Character Artists" textFill="#e67e22" style="-fx-font-weight: bold; -fx-font-size: 18px;" GridPane.rowIndex="2" />
                   <Label text="Fithri Aura" textFill="WHITE" style="-fx-font-size: 18px;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text="Suci Septy Rahmadhina" textFill="WHITE" style="-fx-font-size: 18px;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label text="Suci Septy Rahmadina" textFill="WHITE" style="-fx-font-size: 18px;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <Label text="Zidan Nugraha Rey" textFill="WHITE" style="-fx-font-size: 18px;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                </children>
             </GridPane>
