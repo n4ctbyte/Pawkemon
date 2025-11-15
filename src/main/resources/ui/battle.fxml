@@ -3,20 +3,27 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
 <StackPane fx:id="rootStackPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.BattleSceneController">
    <children>
    
-      <BorderPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-image: url('/images/battleground.jpg'); -fx-background-size: cover; -fx-background-position: center;">
+      <Pane style="-fx-background-image: url('/images/battleground.jpg'); -fx-background-size: cover; -fx-background-position: center;" />
+   
+      <Pane fx:id="darknessOverlay" opacity="0.0" style="-fx-background-color: black;" />
+   
+      <BorderPane prefHeight="700.0" prefWidth="1000.0">
          
          <left>
             <VBox alignment="TOP_CENTER" spacing="20.0" BorderPane.alignment="CENTER">
@@ -24,9 +31,15 @@
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </padding>
                <children>
-                  <Label text="Player 1" textFill="WHITE" style="-fx-font-weight: bold;">
-                     <font><Font name="System Bold" size="24.0" /></font>
-                  </Label>
+                  <HBox alignment="CENTER" spacing="10.0">
+                     <children>
+                        <Label text="Player 1" textFill="WHITE" style="-fx-font-weight: bold;">
+                           <font><Font name="System Bold" size="24.0" /></font>
+                        </Label>
+                        <Button fx:id="surrenderButtonP1" mnemonicParsing="false" onAction="#onSurrenderP1Clicked" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 10px;" text="Menyerah" />
+                     </children>
+                  </HBox>
+                  
                   <VBox fx:id="team1VBox" alignment="CENTER" spacing="15.0" />
                </children>
             </VBox>
@@ -38,9 +51,15 @@
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </padding>
                <children>
-                  <Label text="Player 2" textFill="WHITE" style="-fx-font-weight: bold;">
-                     <font><Font name="System Bold" size="24.0" /></font>
-                  </Label>
+                  <HBox alignment="CENTER" spacing="10.0">
+                     <children>
+                        <Label text="Player 2" textFill="WHITE" style="-fx-font-weight: bold;">
+                           <font><Font name="System Bold" size="24.0" /></font>
+                        </Label>
+                        <Button fx:id="surrenderButtonP2" mnemonicParsing="false" onAction="#onSurrenderP2Clicked" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 10px;" text="Menyerah" />
+                     </children>
+                  </HBox>
+                  
                   <VBox fx:id="team2VBox" alignment="CENTER" spacing="15.0" />
                </children>
             </VBox>
@@ -65,7 +84,9 @@
                               <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                            </rowConstraints>
                         </GridPane>
+                        
                         <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButtonClicked" prefHeight="60.0" prefWidth="120.0" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 18px;" text="Back" />
+                        
                         <TextArea fx:id="battleLogArea" editable="false" prefHeight="100.0" prefWidth="400.0" style="-fx-control-inner-background:#3d566e; -fx-text-fill: white; -fx-font-size: 12px;" wrapText="true" />
                      </children>
                   </HBox>
@@ -102,5 +123,5 @@
          </children>
       </VBox>
       
-      </children>
+   </children>
 </StackPane>

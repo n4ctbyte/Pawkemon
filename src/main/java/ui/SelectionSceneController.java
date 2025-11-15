@@ -29,7 +29,7 @@ public class SelectionSceneController {
     @FXML private HBox team1Box;
     @FXML private HBox team2Box;
     @FXML private Button startButton;
-    @FXML private Button backButton;
+    @FXML private Button backButton; 
 
     private List<Hero> availableHeroes = List.of(
         new KucingAkmal(),
@@ -43,14 +43,16 @@ public class SelectionSceneController {
     private List<Hero> player1Team = new ArrayList<>();
     private List<Hero> player2Team = new ArrayList<>();
     
-    private boolean isPlayer1Turn = true;
+    private boolean isPlayer1Turn = true; 
     private Label turnLabel;
 
     public void initialize() {
         turnLabel = new Label("Giliran Player 1 Memilih");
         turnLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox rootVBox = (VBox) pokemonGrid.getParent();
+        
+        VBox rootVBox = (VBox) pokemonGrid.getParent(); 
         rootVBox.getChildren().add(1, turnLabel);
+        
         populateHeroGrid();
     }
 
@@ -79,7 +81,7 @@ public class SelectionSceneController {
         imageView.setPreserveRatio(true);
 
         String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
-        String idlePath = String.format("/images/%s/idle_right.gif", heroFolder);
+        String idlePath = String.format("/images/%s/idle.gif", heroFolder); 
         
         try {
             Image idleGif = new Image(getClass().getResourceAsStream(idlePath));
@@ -92,11 +94,12 @@ public class SelectionSceneController {
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
         Button selectButton = new Button("Pilih");
-        selectButton.setOnAction(e -> onSelectHero(hero, selectButton));
+        selectButton.setOnAction(e -> onSelectHero(hero, selectButton)); 
 
         card.getChildren().addAll(imageView, nameLabel, selectButton); 
         return card;
     }
+
 
     private void onSelectHero(Hero hero, Button clickedButton) {
         MusicManager.getInstance().playClickSound();
@@ -131,15 +134,13 @@ public class SelectionSceneController {
         
         VBox card = (VBox) clickedButton.getParent();
         ScaleTransition st = new ScaleTransition(Duration.millis(100), card);
-        st.setFromX(1.0);
-        st.setFromY(1.0);
-        st.setToX(1.1);
-        st.setToY(1.1);
-        st.setCycleCount(2);
+        st.setFromX(1.0); st.setFromY(1.0);
+        st.setToX(1.1); st.setToY(1.1);
+        st.setCycleCount(2); 
         st.setAutoReverse(true);
         st.play();
         
-        targetTeam.add(hero.clone());
+        targetTeam.add(hero.clone()); 
         
         Label teamMemberLabel = new Label(hero.getName());
         teamMemberLabel.setStyle("-fx-text-fill: white; -fx-padding: 5; -fx-background-color: #555;");
@@ -173,6 +174,6 @@ public class SelectionSceneController {
         MusicManager.getInstance().playClickSound();
         MusicManager.getInstance().stopBattleMusic();
         Parent root = FXMLLoader.load(getClass().getResource("main_menu.fxml"));
-        backButton.getScene().setRoot(root);
+        backButton.getScene().setRoot(root); 
     }
 }

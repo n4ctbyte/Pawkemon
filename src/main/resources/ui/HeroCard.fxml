@@ -22,14 +22,16 @@
             <Font name="System Bold" size="16.0" />
          </font>
       </Label>
-      <HBox spacing="10.0">
+      
+      <HBox fx:id="mainContentHBox" spacing="10.0">
          <children>
-            <VBox alignment="CENTER" spacing="5.0">
+            <VBox fx:id="imageContainer" alignment="CENTER" spacing="5.0">
                <children>
                   <ImageView fx:id="heroImageView" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" />
                </children>
             </VBox>
-            <VBox spacing="5.0">
+            
+            <VBox fx:id="statsContainer" spacing="5.0">
                <children>
                   <GridPane hgap="10.0" vgap="2.0">
                     <columnConstraints>
@@ -78,7 +80,8 @@
                         </StackPane>
                         <StackPane>
                            <children>
-                              <ProgressBar fx:id="hpBar" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #2ecc71;" />
+                              <ProgressBar fx:id="hpBarBackground" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #c0392b;" />
+                              <ProgressBar fx:id="hpBar" prefHeight="15.0" prefWidth="220.0" progress="1.0" style="-fx-accent: #2ecc71; -fx-control-inner-background: transparent;" />
                               <Label fx:id="hpLabel" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;" text="100/100" />
                            </children>
                         </StackPane>
@@ -101,7 +104,8 @@
          </children>
       </HBox>
       <HBox fx:id="statusBox" alignment="CENTER_LEFT" minHeight="20.0" prefWidth="300.0" spacing="4.0" style="-fx-padding: 5 0 0 0;" />
-   </children> <padding>
+   </children>
+   <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
 </VBox>

@@ -19,6 +19,7 @@ public class HeroCardController {
     @FXML private StackPane shieldPane;
     @FXML private ProgressBar shieldBar;
     @FXML private Label shieldLabel;
+    @FXML private ProgressBar hpBarBackground;
     @FXML private VBox rootBox; 
     @FXML private Label heroNameLabel;
     @FXML private ImageView heroImageView;
@@ -33,13 +34,15 @@ public class HeroCardController {
     @FXML private Label defLabel;
     @FXML private Label critChanceLabel;
     @FXML private Label critDmgLabel;
+    @FXML private HBox mainContentHBox;
+    @FXML private VBox imageContainer;
+    @FXML private VBox statsContainer;
 
     private Hero hero;
     
     private boolean isMirrored = false;
     private String currentPersistentAnimationBase = "idle";
     private PauseTransition oneShotTimer; 
-    
     private double maxShieldValue = 1; 
 
     public void updateData(Hero hero) {
@@ -116,7 +119,9 @@ public class HeroCardController {
         
         if (hero.isDead()) {
             heroNameLabel.setText(hero.getName() + " (DEAD)");
+            hpBarBackground.setProgress(1.0);
             hpBar.setProgress(0);
+            shieldBar.setProgress(0);
             energyBar.setProgress(0);
             ultBar.setProgress((double) hero.getUltimateBar() / 100);
             rootBox.setOpacity(0.5);
@@ -130,7 +135,9 @@ public class HeroCardController {
             shieldPane.setVisible(false);
         } else {
             heroNameLabel.setText(hero.getName());
+            hpBarBackground.setProgress(1.0);
             hpBar.setProgress((double) hero.getCurrentHP() / hero.getMaxHP());
+
             energyBar.setProgress((double) hero.getCurrentEnergy() / hero.getMaxEnergy());
             ultBar.setProgress((double) hero.getUltimateBar() / 100);
             rootBox.setOpacity(1.0);
@@ -147,23 +154,24 @@ public class HeroCardController {
     public void setMirrored(boolean mirrored) {
         this.isMirrored = mirrored;
         heroImageView.setScaleX(isMirrored ? -1 : 1);
+        
+        if (mirrored) {
+            mainContentHBox.getChildren().setAll(statsContainer, imageContainer);
+        } else {
+            mainContentHBox.getChildren().setAll(imageContainer, statsContainer);
+        }
     }
 
-    private void playAnimation(String animName) {
+    private void playAnimation(String animNameBase) {
         if (this.hero == null) return;
-        
         heroImageView.setScaleX(isMirrored ? -1 : 1);
-
         if (hero.isDead()) {
             heroImageView.setImage(null);
             return;
         }
-
         String heroFolder = hero.getName().toLowerCase().replace(" ", "_");
-        
-        String animFile = animName.toLowerCase().replace(" ", "_") + ".gif";
+        String animFile = animNameBase.toLowerCase().replace(" ", "_") + ".gif";
         String path = String.format("/images/%s/%s", heroFolder, animFile);
-
         try {
             Image newGif = new Image(getClass().getResourceAsStream(path));
             heroImageView.setImage(newGif);
@@ -183,16 +191,12 @@ public class HeroCardController {
         if (oneShotTimer != null) {
             oneShotTimer.stop();
         }
-        
         playAnimation(animFileName); 
-        
         oneShotTimer = new PauseTransition(Duration.seconds(1.0)); 
-        
         oneShotTimer.setOnFinished(e -> {
             oneShotTimer = null;
-            updatePersistentAnimation();
+            updatePersistentAnimation(); 
         });
-        
         oneShotTimer.play();
     }
     
@@ -203,29 +207,31 @@ public class HeroCardController {
     public void updatePersistentAnimation() {
         if (hero == null) return;
         
-        String animBaseName;
-        
         if (hero.isDead()) {
-            animBaseName = "dead";
+            currentPersistentAnimationBase = "dead"; 
         } else if (hero.isStunned()) {
-            animBaseName = "stun";
+            currentPersistentAnimationBase = "stun";
         } else if (hero.isTaunted()) {
-            animBaseName = "taunt";
+            currentPersistentAnimationBase = "taunt";
         } else if (hero.isBuffed()) {
-            animBaseName = "buffed";
+            currentPersistentAnimationBase = "buffed";
         } else if (hero.isDebuffed()) {
-            animBaseName = "debuffed";
+            currentPersistentAnimationBase = "debuffed";
         } else {
-            animBaseName = "idle";
+            currentPersistentAnimationBase = "idle";
         }
 
         if (oneShotTimer == null) {
-            playAnimation(animBaseName);
+            playAnimation(currentPersistentAnimationBase);
         }
     }
     
     public Hero getHero() { return this.hero; }
     public VBox getRoot() { return this.rootBox; }
+    
+    public ImageView getHeroImageView() {
+        return heroImageView;
+    }
     
     public void highlight(String color) {
         rootBox.setStyle(

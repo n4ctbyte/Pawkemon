@@ -139,8 +139,8 @@ public class Hero {
         return clone;
     }
 
-    public void heal(int amount) {
-        currentHP = Math.min(maxHP, currentHP + amount);
+    public void heal(int amount) { 
+        currentHP = Math.min(maxHP, currentHP + amount); 
     }
 
     public int calculateDamage(int baseAttack) {
@@ -173,7 +173,7 @@ public class Hero {
     }
 
     public void addStatusEffect(StatusEffect effect) {
-        activeEffects.add(effect);
+        activeEffects.add(effect); 
     }
 
     public void reduceStatusEffectDurations() {
@@ -225,8 +225,7 @@ public class Hero {
                         BattleLogger.getInstance().log(name + "'s " + effect.getAttribute() + " is debuffed by " + effect.getValue() + "!");
                     }
                     break;
-                case SHIELD: 
-                    break;
+                case SHIELD: break;
             }
         }
     }
@@ -251,7 +250,6 @@ public class Hero {
         }
         return false;
     }
-
     public boolean isDebuffed() {
         for (StatusEffect effect : activeEffects) {
             if (effect.getType() == StatusEffect.Type.DEBUFF && effect.isActive()) return true;
