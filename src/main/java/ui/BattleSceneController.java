@@ -209,7 +209,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
                 HeroCardController targetCard = getCardForHero(t);
                 if (targetCard != null && t != user) {
                     if (isHarmful) {
-                        targetCard.playOneShotAnimation("getHit");
+                        targetCard.playOneShotAnimation("gethit");
                     } else {
                         targetCard.playOneShotAnimation("healed");
                     }
@@ -220,7 +220,7 @@ public class BattleSceneController implements BattleLogger.LogListener {
             else if (!(selectedSkill instanceof skill.BasicAttack)) {
                 user.setCurrentEnergy(user.getCurrentEnergy() - selectedSkill.getEnergyCost());
                 selectedSkill.startCooldown();
-                user.gainUltimateBar(100);
+                user.gainUltimateBar(20);
             }
             
             for (Hero h : currentPlayer.getTeam()) h.gainEnergy(10);

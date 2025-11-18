@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color; 
 import javafx.util.Duration;
+import javafx.geometry.Pos; // <-- IMPOR BARU
 
 public class HeroCardController {
 
@@ -155,11 +156,21 @@ public class HeroCardController {
         this.isMirrored = mirrored;
         heroImageView.setScaleX(isMirrored ? -1 : 1);
         
+        // --- LOGIKA LAYOUT MIRROR ---
         if (mirrored) {
+            // Player 1: Stats di kiri, Gambar di kanan
             mainContentHBox.getChildren().setAll(statsContainer, imageContainer);
+            // Nama Hero dan Status Effect rata kanan
+            rootBox.setAlignment(Pos.TOP_RIGHT);
+            statusBox.setAlignment(Pos.CENTER_RIGHT);
         } else {
+            // Player 2 (Default): Gambar di kiri, Stats di kanan
             mainContentHBox.getChildren().setAll(imageContainer, statsContainer);
+            // Normal: Rata Kiri
+            rootBox.setAlignment(Pos.TOP_LEFT);
+            statusBox.setAlignment(Pos.CENTER_LEFT);
         }
+        // -------------------------
     }
 
     private void playAnimation(String animNameBase) {
@@ -207,22 +218,24 @@ public class HeroCardController {
     public void updatePersistentAnimation() {
         if (hero == null) return;
         
+        String animBaseName;
+        
         if (hero.isDead()) {
-            currentPersistentAnimationBase = "dead"; 
+            animBaseName = "dead"; 
         } else if (hero.isStunned()) {
-            currentPersistentAnimationBase = "stun";
+            animBaseName = "stun";
         } else if (hero.isTaunted()) {
-            currentPersistentAnimationBase = "taunt";
+            animBaseName = "taunt";
         } else if (hero.isBuffed()) {
-            currentPersistentAnimationBase = "buffed";
+            animBaseName = "buffed";
         } else if (hero.isDebuffed()) {
-            currentPersistentAnimationBase = "debuffed";
+            animBaseName = "debuffed";
         } else {
-            currentPersistentAnimationBase = "idle";
+            animBaseName = "idle";
         }
 
         if (oneShotTimer == null) {
-            playAnimation(currentPersistentAnimationBase);
+            playAnimation(animBaseName);
         }
     }
     
